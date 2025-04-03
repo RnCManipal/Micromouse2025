@@ -6,7 +6,15 @@ void setup() {
     delay(5000);  // Initial delay (if needed)
     Serial.begin(115200);
     Wire.begin();
-
+    display.setRotation(2);
+    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+        Serial.println("Display failed! Restarting...");
+        delay(5000);
+        NVIC_SystemReset();
+    }
+    display.clearDisplay();
+    display.display();
+    
     // === ToF Sensor Initialization ===
     pinMode(TOF_LEFT_XSHUT, OUTPUT);
     pinMode(TOF_CENTER_XSHUT, OUTPUT);
@@ -61,12 +69,27 @@ void setup() {
     // === Encoder Interrupts ===
     attachInterrupt(digitalPinToInterrupt(M1_ENC_A), leftEncoderISR, CHANGE);
     attachInterrupt(digitalPinToInterrupt(M2_ENC_A), rightEncoderISR, CHANGE);
+    updateDisplay("System Ready");
 
     delay(1000); // Final stabilization delay
 }
 
 
 void loop() {
+    moveForward(25);
+    moveForward(25);
+    delay(1000);
+    TurnRight();
+    delay(1000);
+    moveForward(25);
+    moveForward(25);
+    delay(1000);
+    moveForward(25);
+    moveForward(25);
+    delay(1000);
+    TurnLeft();
+    delay(1000);
+    moveForward(25);
     moveForward(25);
     delay(1000);
     Turn180();

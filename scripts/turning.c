@@ -88,7 +88,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
         if (abs(error) < 10) {
             speed /= 2;
         }
-
+    
         int direction = (error > 0) ? -1 : 1;
         Motor_SetSpeed(-direction * speed, direction * speed);
         

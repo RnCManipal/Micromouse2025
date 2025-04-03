@@ -6,62 +6,103 @@ float prevTofError = 0;
 float distkp = 1.0, distkd = 1.0;
 float prevDistError = 0;
 
-double kpT = 1, kiT = 0.0, kdT = 0.1;
+double kpT = 3.0, kiT = 0.0, kdT = 8;
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 double kpL = 0.09, kdL = 1.1;
 double kpR = 0.11, kdR = 1.2;
 
-void moveForward(int targetdist) {
-    int leftDistance = getDistance(tofLeft);
-    int rightDistance = getDistance(tofRight);
-    int centerDistance = getDistance(tofCenter);
+// PID Constants
+const double KP_DIST_LEFT = 0.082, KD_DIST_LEFT = 0.3;
+const double KP_DIST_RIGHT = 0.082, KD_DIST_RIGHT = 0.3;
+const double KP_YAW = 2, KI_YAW = 0.0, KD_YAW = 0.5;
 
-    if (leftDistance == -1) leftDistance = getDistance(tofLeft);
-    if (rightDistance == -1) rightDistance = getDistance(tofRight);
-    if (centerDistance == -1) centerDistance = getDistance(tofCenter);
+double targetYaw;
+bool flag=true;
+int lspeed=0,rspeed=0;
 
-    if (leftDistance == -1 || rightDistance == -1 || centerDistance == -1) {
-        Serial.println("Sensor error! Stopping motors.");
-        Motor_SetSpeed(0, 0);
-        return;
-    }
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-    if (centerDistance < MIN_OBSTACLE_DISTANCE) {
-        Serial.println("Obstacle detected! Stopping.");
-        Motor_SetSpeed(0, 0);
-        return;
-    }
+void updateDisplay(const char* status) {
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0, 0);
+    display.print("Status: ");
+    display.println(status);
+    display.print("Yaw: ");
+    display.print(mpu.getAngleZ(), 1);
+    display.print("\nL: ");
+    display.print(leftEncoderCount);
+    display.print(" R: ");
+    display.println(rightEncoderCount);
+    display.print("l: ");
+    display.print(lspeed);
+    display.print(" ");
+    display.println(rspeed);
+    display.display();
+}
 
-    int currentdist = ((leftEncoderCount + rightEncoderCount) / 2) * DISTANCE_PER_TICK;
-    int errordist = targetdist - currentdist;
+void moveForward(int distanceCm) {
+    mpu.update();
+    targetYaw=mpu.getAngleZ();
+    leftEncoderCount=0;
+    rightEncoderCount=0;
+    double targetCounts = (distanceCm / (3.14 * WHEEL_DIAMETER_CM)) * COUNTS_PER_REVOLUTION;
+    double slowdownStart = targetCounts * SLOWDOWN_FACTOR;
+    bool inSlowdownZone = false;
+    long prevErrorLeft = 0, prevErrorRight = 0;
+    
+    updateDisplay("Moving...");
+    
+    while (true) {
+        mpu.update();
+        double errorLeft = targetCounts - leftEncoderCount;
+        double errorRight = targetCounts - rightEncoderCount;
+        double yawCorrection = KP_YAW * (targetYaw - mpu.getAngleZ());
+        
+        // if (!inSlowdownZone && (abs(errorLeft) < slowdownStart || abs(errorRight) < slowdownStart)) {
+        //     inSlowdownZone = true;
+        //     updateDisplay("fuck");
+            
+        // }
+        // if(flag){
+        //       flag=!flag;
+        //       updateDisplay("Slowing downT");
+        //     }else{
+        //       flag=!flag;
+        //       updateDisplay("Slowing downF");
 
-    static float prevDistError = 0;
-    float distspeed = distkp * errordist + distkd * (errordist - prevDistError);
-    prevDistError = errordist;
+        //     }
+        // Serial.print("Target Counts: "); Serial.println(targetCounts);
+        // Serial.print("Encoder Left: "); Serial.print(leftEncoderCount);
+        // Serial.print(" Encoder Right: "); Serial.println(rightEncoderCount);
+        // Serial.print("Yaw Error: "); Serial.println(targetYaw - mpu.getAngleZ());
 
-    int min_speed = 50;
-    if (distspeed > 0 && distspeed < min_speed) distspeed = min_speed;
-    if (distspeed < 0 && distspeed > -min_speed) distspeed = -min_speed;
-
-    int errortof = leftDistance - rightDistance;
-    float correction = computePID(errortof, tofkp, tofkd);
-
-    int leftSpeed = distspeed - correction;
-    int rightSpeed = distspeed + correction;
-
-    Motor_SetSpeed(leftSpeed, rightSpeed);
-
-    Serial.print("Left: "); Serial.print(leftDistance);
-    Serial.print(" cm | Right: "); Serial.print(rightDistance);
-    Serial.print(" cm | Center: "); Serial.print(centerDistance);
-    Serial.print(" cm | Correction: "); Serial.println(correction);
-
-    if (abs(errordist) < 2) {
-        Serial.println("Target distance reached. Stopping.");
-        Motor_SetSpeed(0, 0);
-    }
+        double speedFactor = constrain(max(abs(errorLeft), abs(errorRight)) / slowdownStart, 0.4, 1.0);
+        int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) * speedFactor - yawCorrection;
+        int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) * speedFactor + yawCorrection;
+        lspeed=errorLeft;
+        rspeed=errorRight;
+        setMotorSpeeds(leftSpeed, rightSpeed);
+        // if((abs(leftSpeed) + abs(rightSpeed))< 35){
+          updateDisplay("notStopped");
+         if ((abs(errorLeft) +abs(errorRight)) < (2*STOP_THRESHOLD)) {
+          updateDisplay("Stopped");
+        //     delay(50);
+        //     mpu.update();
+            //if (abs(targetCounts - leftEncoderCount) < STOP_THRESHOLD z abs(targetCounts - rightEncoderCount) < STOP_THRESHOLD) {
+                brakeMotors();
+                // updateDisplay("Stopped");
+                break;
+            //}
+         }
+        // updateDisplay("Not Stopped");
+        prevErrorLeft = errorLeft;
+        prevErrorRight = errorRight;
+        delay(5);
+    } 
 }
 
 void Motor_SetSpeed(int spdL, int spdR) {
@@ -97,6 +138,22 @@ void Motor_SetSpeed(int spdL, int spdR) {
     }
 }
 
+void setMotorSpeeds(int leftSpeed, int rightSpeed) {
+    if (abs(leftSpeed) < 15) leftSpeed = 0;
+    if (abs(rightSpeed) < 15) rightSpeed = 0;
+    
+    leftSpeed = constrain(leftSpeed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
+    rightSpeed = constrain(rightSpeed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
+    
+    digitalWrite(M1_in1, leftSpeed > 0);
+    digitalWrite(M1_in2, leftSpeed < 0);
+    digitalWrite(M2_in1, rightSpeed > 0);
+    digitalWrite(M2_in2, rightSpeed < 0);
+    
+    analogWrite(M1_PWM, abs(leftSpeed));
+    analogWrite(M2_PWM, abs(rightSpeed));
+}
+
 float computePID(int error, float kp, float kd) {
     static float prevError = 0;
     float derivative = error - prevError;
@@ -124,29 +181,41 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
         Serial.print("Current error: ");
         Serial.println(error);
 
-        int speed = constrain(abs(output), 50, maxSpeed * 1.48);
+        int speed = constrain(abs(output), 20, maxSpeed * 1.48);
 
-        if (abs(error) < 10) {
-            speed /= 2;
+        if (abs(error) < 10) {  
+            speed /= 2;  // Reduce speed when the bot is close to the target angle
         }
 
+        if (abs(error) < 1 && abs(derivative) < 0.5) {  // Ensure it's not moving fast
+            break;
+        }
         int direction = (error > 0) ? -1 : 1;
-        Motor_SetSpeed(-direction * speed, direction * speed);
+        Motor_SetSpeed(direction * speed, -direction * speed);
     }
 
     brake();
 }
 
+void brakeMotors() {
+    digitalWrite(M1_in1, LOW);
+    digitalWrite(M1_in2, LOW);
+    digitalWrite(M2_in1, LOW);
+    digitalWrite(M2_in2, LOW);
+    analogWrite(M1_PWM, 0);
+    analogWrite(M2_PWM, 0);
+}
+
 void TurnLeft() {
-    rotateInPlace(90.0, 150);
+    rotateInPlace(90.0, 20);
 }
 
 void TurnRight() {
-    rotateInPlace(-90.0, 150);
+    rotateInPlace(-90.0, 20);
 }
 
 void Turn180() {
-    rotateInPlace(180.0, 150);
+    rotateInPlace(180.0, 20);
 }
 
 void brake() {
