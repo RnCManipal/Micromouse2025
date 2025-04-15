@@ -3,7 +3,7 @@
 
 #include "Wire.h"
 #include <MPU6050_light.h>
-#include <Adafruit_VL53L0X.h>
+#include <Adafruit_VL6180X.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
@@ -29,7 +29,7 @@
 // Constants
 #define MAXSPEED 180
 #define MIN_OBSTACLE_DISTANCE 5  // Stop if obstacle is closer than 10 cm
-#define COUNTS_PER_ROTATION 415
+#define COUNTS_PER_ROTATION 930
 #define WHEEL_DIAMETER 4.4
 #define DISTANCE_PER_TICK (PI * WHEEL_DIAMETER) / COUNTS_PER_ROTATION
 
@@ -42,9 +42,9 @@ extern Adafruit_SSD1306 display;
 extern volatile long leftEncoderCount;
 extern volatile long rightEncoderCount;
 extern MPU6050 mpu;
-extern Adafruit_VL53L0X tofLeft;
-extern Adafruit_VL53L0X tofCenter;
-extern Adafruit_VL53L0X tofRight;
+extern Adafruit_VL6180X tofLeft;
+extern Adafruit_VL6180X tofCenter;
+extern Adafruit_VL6180X tofRight;
 
 // PID Parameters
 // TOF-based wall following PID

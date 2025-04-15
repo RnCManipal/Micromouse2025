@@ -3,10 +3,10 @@
 float tofkp = 2, tofkd = 5;
 float prevTofError = 0;
 
-float distkp = 1.0, distkd = 1.0;
+float distkp = 1.5, distkd = 1.0;
 float prevDistError = 0;
 
-double kpT = 3.0, kiT = 0.0, kdT = 8;
+double kpT = 1.0, kiT = 0.0, kdT = 24;
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
@@ -49,10 +49,13 @@ void moveForward(int distanceCm) {
     targetYaw=mpu.getAngleZ();
     leftEncoderCount=0;
     rightEncoderCount=0;
-    double targetCounts = (distanceCm / (3.14 * WHEEL_DIAMETER_CM)) * COUNTS_PER_REVOLUTION;
-    double slowdownStart = targetCounts * SLOWDOWN_FACTOR;
+    double targetCounts = (distanceCm / (3.14 * WHEEL_DIAMETER_CM)) * COUNTS_PER_ROTATION;
+    double slowdownStart = targetCounts * 0.95;
     bool inSlowdownZone = false;
     long prevErrorLeft = 0, prevErrorRight = 0;
+
+    Serial.print("Target Counts=");
+    Serial.println(targetCounts);
     
     updateDisplay("Moving...");
     
@@ -62,43 +65,22 @@ void moveForward(int distanceCm) {
         double errorRight = targetCounts - rightEncoderCount;
         double yawCorrection = KP_YAW * (targetYaw - mpu.getAngleZ());
         
-        // if (!inSlowdownZone && (abs(errorLeft) < slowdownStart || abs(errorRight) < slowdownStart)) {
-        //     inSlowdownZone = true;
-        //     updateDisplay("fuck");
-            
-        // }
-        // if(flag){
-        //       flag=!flag;
-        //       updateDisplay("Slowing downT");
-        //     }else{
-        //       flag=!flag;
-        //       updateDisplay("Slowing downF");
-
-        //     }
-        // Serial.print("Target Counts: "); Serial.println(targetCounts);
-        // Serial.print("Encoder Left: "); Serial.print(leftEncoderCount);
-        // Serial.print(" Encoder Right: "); Serial.println(rightEncoderCount);
-        // Serial.print("Yaw Error: "); Serial.println(targetYaw - mpu.getAngleZ());
+        Serial.print("Target Counts: "); Serial.println(targetCounts);
+        Serial.print("Encoder Left: "); Serial.print(leftEncoderCount);
+        Serial.print(" Encoder Right: "); Serial.println(rightEncoderCount);
+        Serial.print("Yaw Error: "); Serial.println(targetYaw - mpu.getAngleZ());
 
         double speedFactor = constrain(max(abs(errorLeft), abs(errorRight)) / slowdownStart, 0.4, 1.0);
-        int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) * speedFactor - yawCorrection;
-        int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) * speedFactor + yawCorrection;
+        int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED)  - yawCorrection;
+        int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) + yawCorrection;
         lspeed=errorLeft;
         rspeed=errorRight;
         setMotorSpeeds(leftSpeed, rightSpeed);
-        // if((abs(leftSpeed) + abs(rightSpeed))< 35){
-          updateDisplay("notStopped");
          if ((abs(errorLeft) +abs(errorRight)) < (2*STOP_THRESHOLD)) {
           updateDisplay("Stopped");
-        //     delay(50);
-        //     mpu.update();
-            //if (abs(targetCounts - leftEncoderCount) < STOP_THRESHOLD z abs(targetCounts - rightEncoderCount) < STOP_THRESHOLD) {
                 brakeMotors();
-                // updateDisplay("Stopped");
                 break;
-            //}
          }
-        // updateDisplay("Not Stopped");
         prevErrorLeft = errorLeft;
         prevErrorRight = errorRight;
         delay(5);
@@ -138,20 +120,42 @@ void Motor_SetSpeed(int spdL, int spdR) {
     }
 }
 
+// Define the minimum PWM value as a constant or variable
+const int MIN_PWM = 60; // Use 'const' if this value won't change during runtime
+// int minPwmValue = 60; // Use a regular 'int' if you need to change it
+
 void setMotorSpeeds(int leftSpeed, int rightSpeed) {
-    if (abs(leftSpeed) < 15) leftSpeed = 0;
-    if (abs(rightSpeed) < 15) rightSpeed = 0;
-    
-    leftSpeed = constrain(leftSpeed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
-    rightSpeed = constrain(rightSpeed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
-    
-    digitalWrite(M1_in1, leftSpeed > 0);
-    digitalWrite(M1_in2, leftSpeed < 0);
-    digitalWrite(M2_in1, rightSpeed > 0);
-    digitalWrite(M2_in2, rightSpeed < 0);
-    
-    analogWrite(M1_PWM, abs(leftSpeed));
-    analogWrite(M2_PWM, abs(rightSpeed));
+    int MIN_PWM=0; 
+    int actualLeftSpeed = leftSpeed;
+    int actualRightSpeed = rightSpeed;
+
+    // Enforce minimum PWM for non-zero speeds
+    if (actualLeftSpeed > 0 && actualLeftSpeed < MIN_PWM) {
+        actualLeftSpeed = MIN_PWM;
+    } else if (actualLeftSpeed < 0 && actualLeftSpeed > -MIN_PWM) {
+        actualLeftSpeed = -MIN_PWM;
+    } else if (actualLeftSpeed == 0) {
+        actualLeftSpeed = 0; // Ensure zero remains zero
+    }
+
+    if (actualRightSpeed > 0 && actualRightSpeed < MIN_PWM) {
+        actualRightSpeed = MIN_PWM;
+    } else if (actualRightSpeed < 0 && actualRightSpeed > -MIN_PWM) {
+        actualRightSpeed = -MIN_PWM;
+    } else if (actualRightSpeed == 0) {
+        actualRightSpeed = 0; // Ensure zero remains zero
+    }
+
+    actualLeftSpeed = constrain(actualLeftSpeed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
+    actualRightSpeed = constrain(actualRightSpeed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
+
+    digitalWrite(M1_in1, actualLeftSpeed > 0);
+    digitalWrite(M1_in2, actualLeftSpeed < 0);
+    digitalWrite(M2_in1, actualRightSpeed > 0);
+    digitalWrite(M2_in2, actualRightSpeed < 0);
+
+    analogWrite(M1_PWM, abs(actualLeftSpeed));
+    analogWrite(M2_PWM, abs(actualRightSpeed));
 }
 
 float computePID(int error, float kp, float kd) {
@@ -183,11 +187,11 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
 
         int speed = constrain(abs(output), 20, maxSpeed * 1.48);
 
-        if (abs(error) < 10) {  
-            speed /= 2;  // Reduce speed when the bot is close to the target angle
-        }
+        //if (abs(error) < 10) {  
+          //  speed /= 2;  // Reduce speed when the bot is close to the target angle
+        // }
 
-        if (abs(error) < 1 && abs(derivative) < 0.5) {  // Ensure it's not moving fast
+        if (abs(error) < 0.5 && abs(derivative) < 0.5) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;

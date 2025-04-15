@@ -4,12 +4,11 @@
 #include "config.h"
 #include "Sensors.h"
 
-#define COUNTS_PER_REVOLUTION 415
 #define WHEEL_DIAMETER_CM 4.4
 #define MIN_MOTOR_SPEED 30      
 #define MAX_MOTOR_SPEED 180     
 #define STOP_THRESHOLD 355
-#define SLOWDOWN_FACTOR 0.7
+#define SLOWDOWN_FACTOR 0.8
 
 extern float tofkp, tofkd, prevTofError;
 extern float distkp, distkd, prevDistError;

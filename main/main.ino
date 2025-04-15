@@ -77,21 +77,13 @@ void setup() {
 
 void loop() {
     moveForward(25);
-    moveForward(25);
     delay(1000);
-    TurnRight();
-    delay(1000);
-    moveForward(25);
-    moveForward(25);
-    delay(1000);
-    moveForward(25);
-    moveForward(25);
-    delay(1000);
+    
     TurnLeft();
     delay(1000);
-    moveForward(25);
-    moveForward(25);
-    delay(1000);
-    Turn180();
-    delay(1000);
+    // moveForward(25);
+    // moveForward(25);
+    // delay(1000);
+    // Turn180();
+    // delay(1000);
 }
