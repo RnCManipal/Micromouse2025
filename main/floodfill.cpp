@@ -1,20 +1,22 @@
 #include <floodfill.h>
 #include "data_structures.h"
 
-char path_taken[6 * 6];
+const short length = 6;
+short y_length = length;
+char path_taken[length * length];
 int path_index = 0;
 char path[256];
 Queue queue;
-bool wall_data[6][6][4];
+bool wall_data[length][length][4];
 
-bool dup_arr[6][6][4] ={
- {{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,1,1,0},{1,1,1,0}},
- {{1,0,0,1},{0,0,1,0},{1,1,0,1},{0,0,0,1},{0,0,1,0},{1,0,1,0}},
- {{1,1,1,0},{1,0,1,0},{1,1,0,0},{0,1,0,0},{0,0,1,0},{1,0,1,0}},
- {{1,0,0,0},{0,0,1,1},{1,0,0,1},{0,0,1,1},{1,0,0,0},{0,0,1,1}},
- {{1,0,0,0},{0,1,1,0},{1,1,0,0},{0,1,0,1},{0,0,0,1},{0,1,1,1}},
- {{1,0,1,1},{1,0,0,1},{0,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,1}}
- };
+bool dup_arr[length][length][4] ={
+    {{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,1,1,0},{1,1,1,0}},
+    {{1,0,0,1},{0,0,1,0},{1,1,0,1},{0,0,0,1},{0,0,1,0},{1,0,1,0}},
+    {{1,1,1,0},{1,0,1,0},{1,1,0,0},{0,1,0,0},{0,0,1,0},{1,0,1,0}},
+    {{1,0,0,0},{0,0,1,1},{1,0,0,1},{0,0,1,1},{1,0,0,0},{0,0,1,1}},
+    {{1,0,0,0},{0,1,1,0},{1,1,0,0},{0,1,0,1},{0,0,0,1},{0,1,1,1}},
+    {{1,0,1,1},{1,0,0,1},{0,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,1}}
+    };
 
 void print_maze(int bot_x, int bot_y) {
     for (int y = 3; y >= 0; y--) {
@@ -76,7 +78,7 @@ void swap(int* x, int* y) {
     *y = temp;
 }
 
-int* minimum_cost(short arena_map[6][6], short bot_pos[2], int *sortedArray) {
+int* minimum_cost(short arena_map[length][length], short bot_pos[2], int *sortedArray) {
     /*
         returns array with [0,1,2,3] as [l,s,r,b] in ascending order of their weights
         Function verified
@@ -92,7 +94,7 @@ int* minimum_cost(short arena_map[6][6], short bot_pos[2], int *sortedArray) {
         top = arena_map[bot_pos[0] - 1][bot_pos[1]];
     }
 
-    if (bot_pos[0] == 15) { // if bot is at bottom row
+    if (bot_pos[0] == 5) { // if bot is at bottom row
         bottom = 1000;
     } else {
         bottom = arena_map[bot_pos[0] + 1][bot_pos[1]];
@@ -104,7 +106,7 @@ int* minimum_cost(short arena_map[6][6], short bot_pos[2], int *sortedArray) {
         left = arena_map[bot_pos[0]][bot_pos[1] - 1];
     }
 
-    if (bot_pos[1] == 15) { // if bot is at rightmost column
+    if (bot_pos[1] == 5) { // if bot is at rightmost column
         right = 1000;
     } else {
         right = arena_map[bot_pos[0]][bot_pos[1] + 1];
@@ -144,7 +146,7 @@ int* minimum_cost(short arena_map[6][6], short bot_pos[2], int *sortedArray) {
 
     return return_value;
 }
-int minimum_value_accessible_neighbors(short arena_map[6][6], short pos[2], int *smallest_accessible_regardless, bool wall_data[6][6][4]) {
+int minimum_value_accessible_neighbors(short arena_map[length][length], short pos[2], int *smallest_accessible_regardless, bool wall_data[length][length][4]) {
     /*returns 0 for left, 1 for forward, 2 for right, 3 for back, -1 if no minimum accessible neighbors
     Function verified
     */
@@ -184,7 +186,7 @@ int minimum_value_accessible_neighbors(short arena_map[6][6], short pos[2], int 
     }
 }
 
-void rearrange_map(short arena_map[6][6], short base_pos[2], bool wall_data[6][6][4]) {
+void rearrange_map(short arena_map[length][length], short base_pos[2], bool wall_data[length][length][4]) {
     // Changes value of map node cost in case the current node has a strictly lower cost than all of its accessible neighbors.
     // Function verified
     queue.push(base_pos[0], base_pos[1]);  // using Queue method
@@ -196,7 +198,7 @@ void rearrange_map(short arena_map[6][6], short base_pos[2], bool wall_data[6][6
         poped = queue.pop();  // using Queue method
         min_access = minimum_value_accessible_neighbors(arena_map, poped, &small, wall_data);  // returns index of minimum value accessible neighbor
 
-        if (poped[0] < 0 || poped[0] > 15 || poped[1] < 0 || poped[1] > 15) {
+        if (poped[0] < 0 || poped[0] > 5 || poped[1] < 0 || poped[1] > 5) {
             continue;
         }
 
@@ -218,7 +220,7 @@ void rearrange_map(short arena_map[6][6], short base_pos[2], bool wall_data[6][6
     }
 }
 
-int direction_wrt_compass(short arena_map[6][6], short bot_pos[2], bool wall_data[6][6][4]) {
+int direction_wrt_compass(short arena_map[length][length], short bot_pos[2], bool wall_data[length][length][4]) {
     // Checks which direction to move in with respect to a compass. i.e 0 => East, 1 => North, 2 => West, 3 => South. Function unverified
 
     int smallest_value;
@@ -230,13 +232,13 @@ int direction_wrt_compass(short arena_map[6][6], short bot_pos[2], bool wall_dat
 
         switch (min_access) {  // LSRB if nodes are equal
             case 0:
-                path_taken[path_index++] = 'E';
+                path_taken[path_index++] = 'W';
                 return 0;
             case 1:
                 path_taken[path_index++] = 'N';
                 return 1;
             case 2:
-                path_taken[path_index++] = 'W';
+                path_taken[path_index++] = 'E';
                 return 2;
             case 3:
                 path_taken[path_index++] = 'S';
@@ -251,43 +253,45 @@ int direction_wrt_compass(short arena_map[6][6], short bot_pos[2], bool wall_dat
     return -1;  // to avoid fall-through if invalid min_access
 }
 
-int direction_wrt_bot(short arena_map[6][6], short bot_pos[2], int facing, bool wall_data[6][6][4]) {
+int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int facing, bool wall_data[length][length][4]) {
     // Decide which direction the bot should move from its perspective
     int direction1 = direction_wrt_compass(arena_map, bot_pos, wall_data);
 
     if (facing == direction1) {
-        // moveForward(25);
+        Serial.println("forward");
+        moveForward(25);
         return 1;
-        Serial.print("Forward");
     } else if (((facing + 1) % 4 == direction1)) {
-        Serial.print("Right");
-        // TurnRight();
+        Serial.println("Right");
+        TurnRight();
+        moveForward(25);
         return 2;
-
     } else if (facing == (direction1 + 1) % 4) {
-        // TurnLeft();
-        Serial.print("Left");
+        Serial.println("Left");
+        TurnLeft();
+        moveForward(25);
         return 0;
     }
-Serial.print("Back");
+        Serial.println("Backward");
+        Turn180();
+        moveForward(25);
+
     return 3;  // turn back if no other condition matches
 }
 
 #include "data_structures.h"  // Make sure to include your custom structures
 
 int floodfill() {
-    short arena_map[6][6] = {
-
+    short arena_map[length][length] = {
         { 4, 3, 2, 2, 3, 4 },
         { 3, 2, 1, 1, 2, 3 },
         { 2, 1, 0, 0, 1, 2 },
         { 2, 1, 0, 0, 1, 2 },
         { 3, 2, 1, 1, 2, 3 },
         { 4, 3, 2, 2, 3, 4 },
-
     };
 
-    short position[2] = {15, 0};
+    short position[2] = {5, 0};
     int facing = 1;
 
     while (true) {
@@ -298,9 +302,9 @@ int floodfill() {
             printf("%d ", wall_data[position[0]][position[1]][i]);
         }
         printf("\n");
-
+      
         if (arena_map[position[0]][position[1]] == 0) {
-            printf("Reached center!\n");
+            Serial.println("Reached center!\n");
             print_path_taken();
             return 0;
         }

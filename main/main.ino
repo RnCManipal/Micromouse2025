@@ -76,7 +76,9 @@ void setup() {
 
 
 void loop() {
+
   floodfill();
+  delay(15000);
     // moveForward(25);
     // moveForward(25);
     // delay(1000);
