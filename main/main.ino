@@ -1,7 +1,7 @@
 #include "config.h"
 #include "Sensors.h"
 #include "movement.h"
-
+#include "floodfill.h"
 void setup() {
     delay(5000);  // Initial delay (if needed)
     Serial.begin(115200);
@@ -76,11 +76,9 @@ void setup() {
 
 
 void loop() {
-    moveForward(25);
-    delay(1000);
-    
-    TurnLeft();
-    delay(1000);
+
+  floodfill();
+  delay(15000);
     // moveForward(25);
     // moveForward(25);
     // delay(1000);

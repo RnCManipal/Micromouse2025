@@ -301,7 +301,7 @@ int direction_wrt_bot(short int arena_map[16][16], short int bot_pos[2], int fac
 
     else if (((facing+1)%4 == direction1)){
         //turn right
-        
+
         return 2;
     }
 
