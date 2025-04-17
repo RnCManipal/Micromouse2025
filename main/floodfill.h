@@ -12,6 +12,9 @@ extern char path[256];
 extern bool wall_data[6][6][4];
 extern bool dup_arr[6][6][4];
 extern const short length;
+extern short_path[256];
+extern int short_path_index;
+extern bool last_was_back;
 // Function Prototypes
 void print_maze(int bot_x, int bot_y);
 void print_path_taken();

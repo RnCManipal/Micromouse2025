@@ -8,6 +8,9 @@ int path_index = 0;
 char path[256];
 Queue queue;
 bool wall_data[length][length][4];
+bool last_was_back = false;
+char short_path[256];
+int short_path_index = 0;
 
 bool dup_arr[length][length][4] ={
     {{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,1,1,0},{1,1,1,0}},
@@ -70,7 +73,14 @@ void print_path_taken() {
     }
     Serial.println();
 }
-
+void print_short_path() {
+    Serial.print("\nshort path: ");
+    for (int i = 0; i < short_path_index; i++) {
+        Serial.print(short_path[i]);
+        Serial.print(" ");
+    }
+    Serial.println();
+}
 void swap(int* x, int* y) {
     // Swaps values of two numbers x and y.
     int temp = *x;
@@ -253,31 +263,55 @@ int direction_wrt_compass(short arena_map[length][length], short bot_pos[2], boo
     return -1;  // to avoid fall-through if invalid min_access
 }
 
+
 int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int facing, bool wall_data[length][length][4]) {
-    // Decide which direction the bot should move from its perspective
     int direction1 = direction_wrt_compass(arena_map, bot_pos, wall_data);
 
     if (facing == direction1) {
-        Serial.println("forward");
+        Serial.println("Forward");
         moveForward(25);
+        if (last_was_back) {
+            last_was_back = false;
+            short_path[short_path_index++] = 'F';
+        } else {
+            short_path[short_path_index++] = 'F';
+        }
         return 1;
-    } else if (((facing + 1) % 4 == direction1)) {
+    } else if ((facing + 1) % 4 == direction1) {
         Serial.println("Right");
         TurnRight();
         moveForward(25);
+        if (last_was_back) {
+            last_was_back = false;
+            short_path[short_path_index++] = 'L'; // Opposite of 'R'
+        } else {
+            short_path[short_path_index++] = 'R';
+        }
         return 2;
     } else if (facing == (direction1 + 1) % 4) {
         Serial.println("Left");
         TurnLeft();
         moveForward(25);
+        if (last_was_back) {
+            last_was_back = false;
+            short_path[short_path_index++] = 'R'; // Opposite of 'L'
+        } else {
+            short_path[short_path_index++] = 'L';
+        }
         return 0;
-    }
+    } else {
         Serial.println("Backward");
         Turn180();
         moveForward(25);
-
-    return 3;  // turn back if no other condition matches
+        // Remove the last move if it exists
+        if (short_path_index > 0) {
+            short_path_index--;
+        }
+        last_was_back = true;
+        return 3;
+    }
 }
+
 
 #include "data_structures.h"  // Make sure to include your custom structures
 
@@ -306,6 +340,7 @@ int floodfill() {
         if (arena_map[position[0]][position[1]] == 0) {
             Serial.println("Reached center!\n");
             print_path_taken();
+            print_short_path();
             return 0;
         }
 
