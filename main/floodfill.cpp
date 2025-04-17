@@ -266,15 +266,23 @@ int direction_wrt_bot(short arena_map[16][16], short bot_pos[2], int facing, boo
     int direction1 = direction_wrt_compass(arena_map, bot_pos, wall_data);
 
     if (facing == direction1) {
+        Serial.println("N");
         moveForward(25);
         return 1;
     } else if (((facing + 1) % 4 == direction1)) {
+        Serial.println("E");
         TurnRight();
+        moveForward(25);
         return 2;
     } else if (facing == (direction1 + 1) % 4) {
+        Serial.println("W");
         TurnLeft();
+        moveForward(25);
         return 0;
     }
+        Serial.println("S");
+        Turn180();
+        moveForward(25);
 
     return 3;  // turn back if no other condition matches
 }

@@ -65,10 +65,10 @@ void moveForward(int distanceCm) {
         double errorRight = targetCounts - rightEncoderCount;
         double yawCorrection = KP_YAW * (targetYaw - mpu.getAngleZ());
         
-        Serial.print("Target Counts: "); Serial.println(targetCounts);
-        Serial.print("Encoder Left: "); Serial.print(leftEncoderCount);
-        Serial.print(" Encoder Right: "); Serial.println(rightEncoderCount);
-        Serial.print("Yaw Error: "); Serial.println(targetYaw - mpu.getAngleZ());
+        // Serial.print("Target Counts: "); Serial.println(targetCounts);
+        // Serial.print("Encoder Left: "); Serial.print(leftEncoderCount);
+        // Serial.print(" Encoder Right: "); Serial.println(rightEncoderCount);
+        // Serial.print("Yaw Error: "); Serial.println(targetYaw - mpu.getAngleZ());
 
         double speedFactor = constrain(max(abs(errorLeft), abs(errorRight)) / slowdownStart, 0.4, 1.0);
         int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED)  - yawCorrection;
@@ -180,10 +180,10 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
         float output = (kpT * error) + (kdT * derivative);
         prev_tilt_error = error;
 
-        Serial.print("Current angle: ");
-        Serial.println(currentYaw);
-        Serial.print("Current error: ");
-        Serial.println(error);
+        // Serial.print("Current angle: ");
+        // Serial.println(currentYaw);
+        // Serial.print("Current error: ");
+        // Serial.println(error);
 
         int speed = constrain(abs(output), 20, maxSpeed * 1.48);
 
