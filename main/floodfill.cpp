@@ -1,29 +1,19 @@
 #include <floodfill.h>
 #include "data_structures.h"
 
-char path_taken[16 * 16];
+char path_taken[6 * 6];
 int path_index = 0;
 char path[256];
 Queue queue;
-bool wall_data[16][16][4];
+bool wall_data[6][6][4];
 
-bool dup_arr[16][16][4] = {
-    {{1,1,0,0},{0,1,0,1},{0,1,0,1},{0,1,1,0},{1,1,0,0},{0,1,0,0},{0,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,0,1},{0,1,0,0},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,0}},
-    {{1,0,0,0},{0,1,1,1},{1,1,0,0},{0,0,1,1},{1,0,1,0},{1,0,1,0},{1,0,1,0},{1,0,0,0},{0,1,0,1},{0,1,1,0},{1,0,1,1},{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,0,1,0}},
-    {{1,0,0,1},{0,1,1,0},{1,0,0,1},{0,1,1,0},{1,0,1,0},{1,0,0,0},{0,0,1,0},{1,0,1,1},{1,1,0,0},{0,0,1,1},{1,1,0,0},{0,0,0,1},{0,0,1,1},{1,1,0,0},{0,0,0,1},{0,0,1,0}},
-    {{1,1,0,0},{0,0,1,1},{1,1,0,1},{0,0,1,0},{1,0,1,0},{1,0,1,0},{1,0,1,0},{1,1,0,0},{0,0,1,1},{1,1,0,0},{0,0,1,1},{1,1,0,0},{0,1,0,1},{0,0,1,1},{1,1,0,0},{0,0,1,1}},
-    {{1,0,1,0},{1,1,0,0},{0,1,0,1},{0,0,1,1},{1,0,1,0},{1,0,1,0},{1,0,0,0},{0,0,1,1},{1,1,0,0},{0,0,1,1},{1,1,1,0},{1,0,1,0},{1,1,0,0},{0,1,0,1},{0,0,1,1},{1,1,1,0}},
-    {{1,0,1,0},{1,0,0,1},{0,1,0,1},{0,1,1,0},{1,0,1,0},{1,0,0,1},{0,0,1,0},{1,1,1,0},{1,0,0,0},{0,1,0,1},{0,0,1,0},{1,0,1,0},{1,0,1,0},{1,1,1,0},{1,1,1,0},{1,0,1,0}},
-    {{1,0,1,0},{1,1,0,0},{0,1,1,1},{1,0,1,0},{1,0,0,0},{0,1,1,0},{1,0,1,1},{1,0,0,1},{0,0,1,1},{1,1,1,0},{1,0,1,0},{1,0,0,1},{0,0,0,0},{0,0,0,1},{0,0,0,1},{0,0,1,1}},
-    {{1,0,0,0},{0,0,1,0},{1,1,0,0},{0,0,1,1},{1,0,1,0},{1,0,0,1},{0,1,1,0},{1,1,0,0},{0,1,0,0},{0,0,0,1},{0,0,0,1},{0,1,1,1},{1,0,0,1},{0,1,0,0},{0,1,0,1},{0,1,1,0}},
-    {{1,0,1,1},{1,0,1,0},{1,0,0,1},{0,1,1,0},{1,0,0,0},{0,1,0,1},{0,0,1,1},{1,0,0,1},{0,0,1,1},{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,0,0,1},{0,1,0,0},{0,0,1,1}},
-    {{1,1,0,0},{0,0,0,1},{0,1,1,1},{1,0,0,1},{0,0,1,1},{1,1,0,0},{0,1,1,1},{1,1,0,0},{0,1,0,0},{0,0,0,1},{0,0,1,0},{1,1,1,0},{1,0,0,1},{0,1,1,0},{1,0,0,1},{0,1,1,0}},
-    {{1,0,0,0},{0,1,0,1},{0,1,0,1},{0,1,0,0},{0,1,0,1},{0,0,0,0},{0,1,1,1},{1,0,1,1},{1,0,0,1},{0,1,1,0},{1,0,1,0},{1,0,0,0},{0,1,1,1},{1,0,0,1},{0,1,0,1},{0,0,1,0}},
-    {{1,0,1,0},{1,1,0,0},{0,1,1,0},{1,0,0,1},{0,1,1,0},{1,0,0,1},{0,1,1,0},{1,1,0,0},{0,1,1,0},{1,0,0,0},{0,1,1,0},{1,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,0,1,1}},
-    {{1,0,0,0},{0,0,1,1},{1,0,0,1},{0,1,1,0},{1,0,0,1},{0,1,1,0},{1,0,1,0},{1,0,1,0},{1,0,1,0},{1,0,1,1},{1,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,1},{0,1,1,0}},
-    {{1,0,1,0},{1,1,0,0},{0,1,1,0},{1,0,0,1},{0,1,1,0},{1,0,0,1},{0,0,1,0},{1,0,1,0},{1,0,1,0},{1,1,0,1},{0,1,0,0},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,0,1,1}},
-    {{1,0,1,0},{1,0,1,0},{1,0,0,1},{0,1,1,0},{1,0,0,1},{0,1,1,0},{1,0,1,0},{1,0,1,0},{1,0,1,0},{1,1,0,1},{0,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,0}},
-    {{1,0,1,1},{1,0,0,1},{0,1,0,1},{0,0,0,1},{0,1,0,1},{0,0,0,1},{0,0,0,1},{0,0,1,1},{1,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,1,0,1},{0,0,1,1}},
+bool dup_arr[6][6][4] ={
+ {{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,1,1,0},{1,1,1,0}},
+ {{1,0,0,1},{0,0,1,0},{1,1,0,1},{0,0,0,1},{0,0,1,0},{1,0,1,0}},
+ {{1,1,1,0},{1,0,1,0},{1,1,0,0},{0,1,0,0},{0,0,1,0},{1,0,1,0}},
+ {{1,0,0,0},{0,0,1,1},{1,0,0,1},{0,0,1,1},{1,0,0,0},{0,0,1,1}},
+ {{1,0,0,0},{0,1,1,0},{1,1,0,0},{0,1,0,1},{0,0,0,1},{0,1,1,1}},
+ {{1,0,1,1},{1,0,0,1},{0,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,1}}
  };
 
 void print_maze(int bot_x, int bot_y) {
@@ -86,7 +76,7 @@ void swap(int* x, int* y) {
     *y = temp;
 }
 
-int* minimum_cost(short arena_map[16][16], short bot_pos[2], int *sortedArray) {
+int* minimum_cost(short arena_map[6][6], short bot_pos[2], int *sortedArray) {
     /*
         returns array with [0,1,2,3] as [l,s,r,b] in ascending order of their weights
         Function verified
@@ -154,7 +144,7 @@ int* minimum_cost(short arena_map[16][16], short bot_pos[2], int *sortedArray) {
 
     return return_value;
 }
-int minimum_value_accessible_neighbors(short arena_map[16][16], short pos[2], int *smallest_accessible_regardless, bool wall_data[16][16][4]) {
+int minimum_value_accessible_neighbors(short arena_map[6][6], short pos[2], int *smallest_accessible_regardless, bool wall_data[6][6][4]) {
     /*returns 0 for left, 1 for forward, 2 for right, 3 for back, -1 if no minimum accessible neighbors
     Function verified
     */
@@ -194,7 +184,7 @@ int minimum_value_accessible_neighbors(short arena_map[16][16], short pos[2], in
     }
 }
 
-void rearrange_map(short arena_map[16][16], short base_pos[2], bool wall_data[16][16][4]) {
+void rearrange_map(short arena_map[6][6], short base_pos[2], bool wall_data[6][6][4]) {
     // Changes value of map node cost in case the current node has a strictly lower cost than all of its accessible neighbors.
     // Function verified
     queue.push(base_pos[0], base_pos[1]);  // using Queue method
@@ -228,7 +218,7 @@ void rearrange_map(short arena_map[16][16], short base_pos[2], bool wall_data[16
     }
 }
 
-int direction_wrt_compass(short arena_map[16][16], short bot_pos[2], bool wall_data[16][16][4]) {
+int direction_wrt_compass(short arena_map[6][6], short bot_pos[2], bool wall_data[6][6][4]) {
     // Checks which direction to move in with respect to a compass. i.e 0 => East, 1 => North, 2 => West, 3 => South. Function unverified
 
     int smallest_value;
@@ -261,52 +251,40 @@ int direction_wrt_compass(short arena_map[16][16], short bot_pos[2], bool wall_d
     return -1;  // to avoid fall-through if invalid min_access
 }
 
-int direction_wrt_bot(short arena_map[16][16], short bot_pos[2], int facing, bool wall_data[16][16][4]) {
+int direction_wrt_bot(short arena_map[6][6], short bot_pos[2], int facing, bool wall_data[6][6][4]) {
     // Decide which direction the bot should move from its perspective
     int direction1 = direction_wrt_compass(arena_map, bot_pos, wall_data);
 
     if (facing == direction1) {
-        Serial.println("N");
-        moveForward(25);
+        // moveForward(25);
         return 1;
+        Serial.print("Forward");
     } else if (((facing + 1) % 4 == direction1)) {
-        Serial.println("E");
-        TurnRight();
-        moveForward(25);
+        Serial.print("Right");
+        // TurnRight();
         return 2;
+
     } else if (facing == (direction1 + 1) % 4) {
-        Serial.println("W");
-        TurnLeft();
-        moveForward(25);
+        // TurnLeft();
+        Serial.print("Left");
         return 0;
     }
-        Serial.println("S");
-        Turn180();
-        moveForward(25);
-
+Serial.print("Back");
     return 3;  // turn back if no other condition matches
 }
 
 #include "data_structures.h"  // Make sure to include your custom structures
 
 int floodfill() {
-    short arena_map[16][16] = {
-        {14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14},
-        {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},
-        {12, 11, 10,  9,  8, 7, 6, 5, 5, 6, 7,  8,  9, 10, 11, 12},
-        {11, 10,  9,  8,  7, 6, 5, 4, 4, 5, 6,  7,  8,  9, 10, 11},
-        {10,  9,  8,  7,  6, 5, 4, 3, 3, 4, 5,  6,  7,  8,  9, 10},
-        { 9,  8,  7,  6,  5, 4, 3, 2, 2, 3, 4,  5,  6,  7,  8, 9 },
-        { 8,  7,  6,  5,  4, 3, 2, 1, 1, 2, 3,  4,  5,  6,  7, 8 },
-        { 7,  6,  5,  4,  3, 2, 1, 0, 0, 1, 2,  3,  4,  5,  6, 7 },
-        { 7,  6,  5,  4,  3, 2, 1, 0, 0, 1, 2,  3,  4,  5,  6, 7 },
-        { 8,  7,  6,  5,  4, 3, 2, 1, 1, 2, 3,  4,  5,  6,  7, 8 },
-        { 9,  8,  7,  6,  5, 4, 3, 2, 2, 3, 4,  5,  6,  7,  8, 9 },
-        {10,  9,  8,  7,  6, 5, 4, 3, 3, 4, 5,  6,  7,  8,  9, 10},
-        {11, 10,  9,  8,  7, 6, 5, 4, 4, 5, 6,  7,  8,  9, 10, 11},
-        {12, 11, 10,  9,  8, 7, 6, 5, 5, 6, 7,  8,  9, 10, 11, 12},
-        {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},
-        {14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14},
+    short arena_map[6][6] = {
+
+        { 4, 3, 2, 2, 3, 4 },
+        { 3, 2, 1, 1, 2, 3 },
+        { 2, 1, 0, 0, 1, 2 },
+        { 2, 1, 0, 0, 1, 2 },
+        { 3, 2, 1, 1, 2, 3 },
+        { 4, 3, 2, 2, 3, 4 },
+
     };
 
     short position[2] = {15, 0};
