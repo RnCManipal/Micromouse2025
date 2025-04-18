@@ -12,6 +12,49 @@ bool last_was_back = false;
 char short_path[256];
 int short_path_index = 0;
 
+#define MAX 1000
+
+// Function to check if two directions are opposite
+int isOpposite(char a, char b) {
+    return (a == 'N' && b == 'S') ||
+           (a == 'S' && b == 'N') ||
+           (a == 'E' && b == 'W') ||
+           (a == 'W' && b == 'E');
+}
+
+void reduceDirections(char *input) {
+    // Function to reduce the directions
+    char directions[MAX][2];  // Array of single-char strings
+    int count = 0;
+
+    // Split the input string into individual directions
+    char *token = strtok(input, " ");
+    while (token != NULL) {
+        strcpy(directions[count++], token);
+        token = strtok(NULL, " ");
+    }
+
+    // Use stack logic to reduce directions
+    char stack[MAX][2];
+    int top = -1;
+
+    for (int i = 0; i < count; i++) {
+        if (top >= 0 && isOpposite(stack[top][0], directions[i][0])) {
+            top--;  // Cancel out opposite direction
+        } else {
+            strcpy(stack[++top], directions[i]);
+        }
+    }
+
+    // Print the reduced result
+    Serial.println("Reduced directions:");
+    for (int i = 0; i <= top; i++) {
+        Serial.print(stack[i]);
+    }
+    Serial.println();
+
+}
+
 bool dup_arr[length][length][4] ={
     {{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,1,1,0},{1,1,1,0}},
     {{1,0,0,1},{0,0,1,0},{1,1,0,1},{0,0,0,1},{0,0,1,0},{1,0,1,0}},
@@ -72,7 +115,9 @@ void print_path_taken() {
         Serial.print(" ");
     }
     Serial.println();
+    reduceDirections(path_taken);
 }
+
 void print_short_path() {
     Serial.print("\nshort path: ");
     for (int i = 0; i < short_path_index; i++) {
@@ -269,7 +314,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
     if (facing == direction1) {
         Serial.println("Forward");
-        moveForward(25);
+        // moveForward(25);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'F';
@@ -279,8 +324,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         return 1;
     } else if ((facing + 1) % 4 == direction1) {
         Serial.println("Right");
-        TurnRight();
-        moveForward(25);
+        // TurnRight();
+        // moveForward(25);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'L'; // Opposite of 'R'
@@ -290,8 +335,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         return 2;
     } else if (facing == (direction1 + 1) % 4) {
         Serial.println("Left");
-        TurnLeft();
-        moveForward(25);
+        // TurnLeft();
+        // moveForward(25);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'R'; // Opposite of 'L'
@@ -301,8 +346,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         return 0;
     } else {
         Serial.println("Backward");
-        Turn180();
-        moveForward(25);
+        // Turn180();
+        // moveForward(25);
         // Remove the last move if it exists
         if (short_path_index > 0) {
             short_path_index--;
@@ -314,6 +359,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
 
 #include "data_structures.h"  // Make sure to include your custom structures
+
+
 
 int floodfill() {
     short arena_map[length][length] = {
