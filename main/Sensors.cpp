@@ -14,7 +14,6 @@ void leftEncoderISR() {
 void rightEncoderISR() {
     rightEncoderCount += (digitalRead(M2_ENC_A) == digitalRead(M2_ENC_B)) ? -1 : 1;
 }
-#include <Adafruit_VL6180X.h>
 
 int getDistance(Adafruit_VL6180X &sensor) {
     uint8_t distance = sensor.readRange();

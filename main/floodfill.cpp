@@ -12,47 +12,36 @@ bool last_was_back = false;
 char short_path[256];
 int short_path_index = 0;
 
-#define MAX 1000
 
 // Function to check if two directions are opposite
+#define MAX 100
+
 int isOpposite(char a, char b) {
-    return (a == 'N' && b == 'S') ||
-           (a == 'S' && b == 'N') ||
-           (a == 'E' && b == 'W') ||
-           (a == 'W' && b == 'E');
+  return (a == 'N' && b == 'S') ||
+         (a == 'S' && b == 'N') ||
+         (a == 'E' && b == 'W') ||
+         (a == 'W' && b == 'E');
 }
 
-void reduceDirections(char *input) {
-    // Function to reduce the directions
-    char directions[MAX][2];  // Array of single-char strings
-    int count = 0;
+void reduceDirections(const char* input) {
+  char stack[MAX];
+  int top = -1;
 
-    // Split the input string into individual directions
-    char *token = strtok(input, " ");
-    while (token != NULL) {
-        strcpy(directions[count++], token);
-        token = strtok(NULL, " ");
+  for (int i = 0; input[i] != '\0'; i++) {
+    char dir = input[i];
+    if (top >= 0 && isOpposite(stack[top], dir)) {
+      top--;  // Cancel out opposite direction
+    } else {
+      stack[++top] = dir;  // Push direction to stack
     }
+  }
 
-    // Use stack logic to reduce directions
-    char stack[MAX][2];
-    int top = -1;
-
-    for (int i = 0; i < count; i++) {
-        if (top >= 0 && isOpposite(stack[top][0], directions[i][0])) {
-            top--;  // Cancel out opposite direction
-        } else {
-            strcpy(stack[++top], directions[i]);
-        }
-    }
-
-    // Print the reduced result
-    Serial.println("Reduced directions:");
-    for (int i = 0; i <= top; i++) {
-        Serial.print(stack[i]);
-    }
-    Serial.println();
-
+  // Print reduced result
+  Serial.println("Reduced directions:");
+  for (int i = 0; i <= top; i++) {
+    Serial.print(stack[i]);
+  }
+  Serial.println();
 }
 
 bool dup_arr[length][length][4] ={
@@ -418,6 +407,8 @@ int floodfill() {
             case 2: position[1] += 1; break;
             case 3: position[0] += 1; break;
         }
+        
+
 
         // Push previous position to queue for path tracking
         queue.push(prev_x, prev_y);
