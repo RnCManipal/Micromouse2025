@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 1000
 #include <floodfill.h>
 #include "data_structures.h"
 
@@ -7,14 +11,10 @@ char path_taken[length * length];
 int path_index = 0;
 char path[256];
 Queue queue;
-bool wall_data[length][length][4];
+
 bool last_was_back = false;
 char short_path[256];
 int short_path_index = 0;
-
-
-// Function to check if two directions are opposite
-#define MAX 100
 
 int isOpposite(char a, char b) {
   return (a == 'N' && b == 'S') ||
@@ -40,10 +40,10 @@ void reduceDirections(const char* input) {
   Serial.println("Reduced directions:");
   for (int i = 0; i <= top; i++) {
     Serial.print(stack[i]);
+    short_path[i]=stack[i];
   }
   Serial.println();
 }
-
 bool dup_arr[length][length][4] ={
     {{1,1,1,0},{1,1,0,0},{0,1,0,1},{0,1,1,0},{1,1,1,0},{1,1,1,0}},
     {{1,0,0,1},{0,0,1,0},{1,1,0,1},{0,0,0,1},{0,0,1,0},{1,0,1,0}},
@@ -53,49 +53,14 @@ bool dup_arr[length][length][4] ={
     {{1,0,1,1},{1,0,0,1},{0,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,1}}
     };
 
-void print_maze(int bot_x, int bot_y) {
-    for (int y = 3; y >= 0; y--) {
-        // Print top walls
-        for (int x = 0; x < 4; x++) {
-            Serial.print("+");
-            if (wall_data[x][y][0]) // NORTH
-                Serial.print("---");
-            else
-                Serial.print("   ");
-        }
-        Serial.println("+");
-
-        // Print side walls and bot
-        for (int x = 0; x < 4; x++) {
-            if (wall_data[x][y][3]) // WEST
-                Serial.print("|");
-            else
-                Serial.print(" ");
-
-            if (x == bot_x && y == bot_y)
-                Serial.print(" B ");
-            else
-                Serial.print("   ");
-        }
-
-        if (wall_data[3][y][1]) // EAST wall of last cell
-            Serial.print("|");
-        else
-            Serial.print(" ");
-
-        Serial.println();
-    }
-
-    // Print bottom walls
-    for (int x = 0; x < 4; x++) {
-        Serial.print("+");
-        if (wall_data[x][0][2]) // SOUTH
-            Serial.print("---");
-        else
-            Serial.print("   ");
-    }
-    Serial.println("+");
-}
+bool wall_data[length][length][4] ={
+    {{1,1,0,0},{1,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,1,0}},
+    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
+    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
+    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
+    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
+    {{1,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,1,1}}
+    };
 
 void print_path_taken() {
     Serial.print("\nPath taken by bot: ");
@@ -114,12 +79,6 @@ void print_short_path() {
         Serial.print(" ");
     }
     Serial.println();
-}
-void swap(int* x, int* y) {
-    // Swaps values of two numbers x and y.
-    int temp = *x;
-    *x = *y;
-    *y = temp;
 }
 
 int* minimum_cost(short arena_map[length][length], short bot_pos[2], int *sortedArray) {
@@ -303,7 +262,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
     if (facing == direction1) {
         Serial.println("Forward");
-        // moveForward(25);
+        moveForward(25);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'F';
@@ -313,8 +272,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         return 1;
     } else if ((facing + 1) % 4 == direction1) {
         Serial.println("Right");
-        // TurnRight();
-        // moveForward(25);
+        TurnRight();
+        moveForward(25);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'L'; // Opposite of 'R'
@@ -324,8 +283,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         return 2;
     } else if (facing == (direction1 + 1) % 4) {
         Serial.println("Left");
-        // TurnLeft();
-        // moveForward(25);
+        TurnLeft();
+        moveForward(25);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'R'; // Opposite of 'L'
@@ -335,8 +294,8 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         return 0;
     } else {
         Serial.println("Backward");
-        // Turn180();
-        // moveForward(25);
+        Turn180();
+        moveForward(25);
         // Remove the last move if it exists
         if (short_path_index > 0) {
             short_path_index--;
@@ -363,15 +322,98 @@ int floodfill() {
 
     short position[2] = {5, 0};
     int facing = 1;
-
+    int left_wall;
+    int right_wall;
+    int front_wall;
     while (true) {
-        printf("Wall data for current node: \n");
-        for (int i = 0; i < 4; i++) {
-            int temp;
-            wall_data[position[0]][position[1]][i] = dup_arr[position[0]][position[1]][i];
-            printf("%d ", wall_data[position[0]][position[1]][i]);
+        Serial.println("Wall data for current node: \n");
+        int temp;
+        left_wall = getDistance(tofLeft);
+        right_wall = getDistance(tofRight);
+        front_wall = getDistance(tofCenter);
+        Serial.print("Left: ");
+        Serial.print(left_wall);
+        Serial.print(" Right: ");
+        Serial.print(right_wall);
+        Serial.print(" Front: ");
+        Serial.println(front_wall);
+        if(facing==0){
+            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+                wall_data[position[0]][position[1]][3] = 1; // S wall
+            } else {
+                wall_data[position[0]][position[1]][3] = 0;
+            }
+            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+                wall_data[position[0]][position[1]][0] = 1; // W wall
+            } else {
+                wall_data[position[0]][position[1]][0] = 0;
+            }
+            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+                wall_data[position[0]][position[1]][1] = 1; // N wall
+            } else {
+                wall_data[position[0]][position[1]][1] = 0;
+            }
         }
-        printf("\n");
+        if(facing==1){
+            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+                wall_data[position[0]][position[1]][0] = 1; // left wall
+            } else {
+                wall_data[position[0]][position[1]][0] = 0;
+            }
+            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+                wall_data[position[0]][position[1]][1] = 1; // front wall
+            } else {
+                wall_data[position[0]][position[1]][1] = 0;
+            }
+            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+                wall_data[position[0]][position[1]][2] = 1; // right wall
+            } else {
+                wall_data[position[0]][position[1]][2] = 0;
+            }
+        }
+        if(facing==2){
+            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+                wall_data[position[0]][position[1]][1] = 1; // N wall
+            } else {
+                wall_data[position[0]][position[1]][1] = 0;
+            }
+            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+                wall_data[position[0]][position[1]][2] = 1; // E wall
+            } else {
+                wall_data[position[0]][position[1]][2] = 0;
+            }
+            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+                wall_data[position[0]][position[1]][3] = 1; // S wall
+            } else {
+                wall_data[position[0]][position[1]][3] = 0;
+            }
+        }
+        if(facing==3){
+            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+                wall_data[position[0]][position[1]][2] = 1; // E wall
+            } else {
+                wall_data[position[0]][position[1]][2] = 0;
+            }
+            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+                wall_data[position[0]][position[1]][3] = 1; // S wall
+            } else {
+                wall_data[position[0]][position[1]][3] = 0;
+            }
+            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+                wall_data[position[0]][position[1]][0] = 1; // West wall
+            } else {
+                wall_data[position[0]][position[1]][0] = 0;
+            }
+        }
+
+        for(int j=0;j<4;j++){
+            Serial.print("Wall data: ");
+            Serial.print(j);
+            Serial.print(" = ");
+            Serial.print(wall_data[position[0]][position[1]][j]);
+        }
+        
+        Serial.println("\n");
       
         if (arena_map[position[0]][position[1]] == 0) {
             Serial.println("Reached center!\n");
@@ -413,10 +455,60 @@ int floodfill() {
         // Push previous position to queue for path tracking
         queue.push(prev_x, prev_y);
 
-        printf("Current position: %d %d\n", position[0], position[1]);
-        printf("Current facing: %d\n", facing);
+        Serial.print("Current position:" );
+        Serial.println(position[0]);
+        Serial.print(position[1]);
+        Serial.print("Current facing:" );
+        Serial.println(facing);
     }
 
     print_path_taken();
     return 0;
 }
+
+int directionIndex(char dir) {
+    switch (dir) {
+        case 'N': return 0;
+        case 'E': return 1;
+        case 'S': return 2;
+        case 'W': return 3;
+        default: return -1;
+    }
+}
+
+// Determine turn from 'from' to 'to'
+void makeTurn(char from, char to) {
+    int f = directionIndex(from);
+    int t = directionIndex(to);
+    int diff = (t - f + 4) % 4;
+
+    if (diff == 1) {
+        TurnRight();
+    } else if (diff == 3) {
+        TurnLeft();
+    } else if (diff == 2) {
+        Turn180();
+    }
+}
+
+// Final run function
+void final_run(const char* reduced) {
+    if (reduced[0] == '\0') return;
+
+    char current = reduced[0];
+    int steps = 1;
+
+    for (int i = 1; reduced[i] != '\0'; i++) {
+        char next = reduced[i];
+        if (next == current) {
+            steps++;
+        } else {
+            moveForward(25 * steps);
+            makeTurn(current, next);
+            current = next;
+            steps = 1;
+        }
+    }
+    moveForward(25 * steps);  // Final move
+}
+
