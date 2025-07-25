@@ -76,24 +76,13 @@ void setup() {
 
 
 void loop() {
-
-  floodfill();
-  delay(15000);
-  Serial.println("wall_data = {");
-for (int i = 0; i < 6; i++) {
-  Serial.print("  {");
-  for (int j = 0; j < 6; j++) {
-    Serial.print("{");
-    for (int k = 0; k < 4; k++) {
-      Serial.print(wall_data[i][j][k]);
-      if (k < 3) Serial.print(", ");
-    }
-    Serial.print("}");
-    if (j < 5) Serial.print(", ");
-  }
-  Serial.println(i < 5 ? "}," : "}");
-}
-Serial.println("};");
+    moveForward(25);  // Move forward for 25 cm
+    delay(1000);  // Wait for a second
+    moveForward(25);  // Move forward for another 25 cm
+    delay(1000);  // Wait for a second
+    
+    // Uncomment the following lines to test movement functions
+  
 
     // moveForward(25);
     // moveForward(25);

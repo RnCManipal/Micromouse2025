@@ -3,10 +3,10 @@
 float tofkp = 2, tofkd = 5;
 float prevTofError = 0;
 
-float distkp = 1.5, distkd = 1.0;
+float distkp = 0.1, distkd = 0.8;
 float prevDistError = 0;
 
-double kpT = 1.0, kiT = 0.0, kdT = 24;
+double kpT = 0.5, kiT = 0.0, kdT = 2.0;
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
@@ -14,8 +14,8 @@ double kpL = 0.09, kdL = 1.1;
 double kpR = 0.11, kdR = 1.2;
 
 // PID Constants
-const double KP_DIST_LEFT = 0.082, KD_DIST_LEFT = 0.3;
-const double KP_DIST_RIGHT = 0.082, KD_DIST_RIGHT = 0.3;
+const double KP_DIST_LEFT = 0.05, KD_DIST_LEFT = 0.01;
+const double KP_DIST_RIGHT = 0.05, KD_DIST_RIGHT = 0.01;
 const double KP_YAW = 2, KI_YAW = 0.0, KD_YAW = 0.5;
 double left_dist, right_dist, front_dist;
 double targetYaw;
@@ -61,7 +61,7 @@ void moveForward(int distanceCm) {
     // Wall following constants
     const double DESIRED_WALL_DIST = 70.0; // mm
     const double WALL_DETECT_THRESHOLD = 100.0; // mm
-    const double WALL_FOLLOW_KP = 0.25; // tune this
+    const double WALL_FOLLOW_KP = 0.2; // tune this
 
     while (true) {
         mpu.update();
@@ -80,13 +80,6 @@ void moveForward(int distanceCm) {
         bool rightWall = (right_dist < WALL_DETECT_THRESHOLD && right_dist>0);
         double wallError = 0;
 
-        Serial.print("Left: ");
-        Serial.print(left_dist);
-        Serial.print(" Right: ");
-        Serial.print(right_dist);
-        Serial.print(" Front: ");
-        Serial.print(front_dist);
-        Serial.println(front_dist);
         if (leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - left_dist) + (DESIRED_WALL_DIST - right_dist);
         } 
@@ -234,7 +227,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
             break;
         }
         int direction = (error > 0) ? -1 : 1;
-        Motor_SetSpeed(direction * speed, -direction * speed);
+        Motor_SetSpeed(-direction * speed, direction * speed);
     }
 
     brake();
