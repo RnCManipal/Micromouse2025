@@ -6,8 +6,9 @@
 char path_taken[16 * 16];
 int path_index = 0;
 char path[256];
-
- bool wall_data[16][16][4];
+char short_path[256];
+int short_path_index = 0;
+bool wall_data[16][16][4];
 
 bool dup_arr[16][16][4]={
 
@@ -82,6 +83,12 @@ void print_path_taken() {
     printf("\n");
 }
 
+void shortpath(){
+    for(int i=0;i<path_index;i++){
+        if(path[i]=='E' && path_index)
+    }
+
+}
 void swap(int *x, int *y){
     //Swaps values of two  numbers x and y.
     //Function is complete

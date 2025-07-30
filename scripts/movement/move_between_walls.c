@@ -1,6 +1,6 @@
 #include "Wire.h"
 #include <MPU6050_light.h>
-#include <Adafruit_VL53L0X.h>
+#include <Adafruit_VL6180X.h>
 
 #define M2_PWM PA1  // Right Motor PWM
 #define M1_PWM PA6  // Left Motor PWM
@@ -14,26 +14,26 @@
 #define M1_ENC_A PB9  // Left Encoder A
 #define M1_ENC_B PB8  // Left Encoder B
 
-float targetDistance = 25.0; // Target distance in cm
+float targetDistance = 225.0; // Target distance in cm
 float wheelDiameter = 4.4;   // Wheel diameter in cm
-int encoderTicksPerRev = 410;  // Ticks per revolution
+int encoderTicksPerRev = 950;  // Ticks per revolution
 float distancePerTick = (PI * wheelDiameter) / encoderTicksPerRev;
 long targetCounts = targetDistance / distancePerTick;
 volatile long leftEncoderCount = 0;
 volatile long rightEncoderCount = 0;
 
 #define TOF_LEFT_XSHUT PB15  
-#define TOF_CENTER_XSHUT PA9  
+// #define TOF_CENTER_XSHUT PA9  
 #define TOF_RIGHT_XSHUT PB13  
-#define MAXSPEED 85
+#define MAXSPEED 120
 #define MIN_OBSTACLE_DISTANCE 0  // Stop if an obstacle is closer than 10 cm
 
-Adafruit_VL53L0X tofLeft;
-Adafruit_VL53L0X tofCenter;
-Adafruit_VL53L0X tofRight;
+Adafruit_VL6180X tofLeft;
+// Adafruit_VL6180X tofCenter;
+Adafruit_VL6180X tofRight;
 
 // PID parameters
-float tofkp = 7.0, tofkd = 18.0;
+float tofkp = 0.5, tofkd = 1.5;
 float distkp=1.0,distkd=1.0;
 float prevError = 0;
 
@@ -46,11 +46,11 @@ void rightEncoderISR() {
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     Wire.begin();
 
     pinMode(TOF_LEFT_XSHUT, OUTPUT);
-    pinMode(TOF_CENTER_XSHUT, OUTPUT);
+    // pinMode(TOF_CENTER_XSHUT, OUTPUT);
     pinMode(TOF_RIGHT_XSHUT, OUTPUT);
 
     pinMode(PB12, OUTPUT);
@@ -58,7 +58,7 @@ void setup() {
 
     // Reset and initialize ToF sensors
     digitalWrite(TOF_LEFT_XSHUT, LOW);
-    digitalWrite(TOF_CENTER_XSHUT, LOW);
+    // digitalWrite(TOF_CENTER_XSHUT, LOW);
     digitalWrite(TOF_RIGHT_XSHUT, LOW);
     delay(10);
 
@@ -69,12 +69,12 @@ void setup() {
     }
     tofLeft.setAddress(0x30);
 
-    digitalWrite(TOF_CENTER_XSHUT, HIGH);
-    delay(50);
-    if (!tofCenter.begin()) {
-        Serial.println("Failed to initialize Center ToF! Reattempting...");
-    }
-    tofCenter.setAddress(0x31);
+    // digitalWrite(TOF_CENTER_XSHUT, HIGH);
+    // delay(50);
+    // if (!tofCenter.begin()) {
+    //     Serial.println("Failed to initialize Center ToF! Reattempting...");
+    // }    // tofCenter.setAddress(0x31);
+
 
     digitalWrite(TOF_RIGHT_XSHUT, HIGH);
     delay(50);
@@ -115,32 +115,37 @@ float computePID(int error, float kp, float kd) {
 }
 
 
-int getDistance(Adafruit_VL53L0X &sensor) {
-    VL53L0X_RangingMeasurementData_t measure;
-    sensor.rangingTest(&measure, false);
-    return (measure.RangeStatus != 4) ? measure.RangeMilliMeter / 10 : -1;
+int getDistance(Adafruit_VL6180X &sensor) {
+    uint8_t distance = sensor.readRange();
+    uint8_t status = sensor.readRangeStatus();
+
+    if (status == VL6180X_ERROR_NONE) {
+        return distance;  // distance is already in cm
+    } else {
+        return -1;  // error or out of range
+    }
 }
 
 void moveForward(int targetdist) {
     int leftDistance = getDistance(tofLeft);
     int rightDistance = getDistance(tofRight);
-    int centerDistance = getDistance(tofCenter);
+    // int centerDistance = getDistance(tofCenter);
 
-    if (leftDistance == -1) leftDistance = getDistance(tofLeft);
-    if (rightDistance == -1) rightDistance = getDistance(tofRight);
-    if (centerDistance == -1) centerDistance = getDistance(tofCenter);
+    if (leftDistance == -1) {leftDistance = 500;}
+    if (rightDistance == -1) {rightDistance = 500;}
+    // if (centerDistance == -1) centerDistance = getDistance(tofCenter);
 
-    if (leftDistance == -1 || rightDistance == -1 || centerDistance == -1) {
+    if (leftDistance == -1 && rightDistance == -1 ) {
         Serial.println("Sensor error! Stopping motors.");
         setMotorSpeed(0, 0);
         return;
     }
 
-    if (centerDistance < MIN_OBSTACLE_DISTANCE) {
-        Serial.println("Obstacle detected! Stopping.");
-        setMotorSpeed(0, 0);
-        return;
-    }
+    // if (centerDistance < MIN_OBSTACLE_DISTANCE) {
+    //     Serial.println("Obstacle detected! Stopping.");
+    //     setMotorSpeed(0, 0);
+    //     return;
+    // }
 
     // Distance traveled based on encoder counts
     int currentdist = ((leftEncoderCount + rightEncoderCount) / 2) * distancePerTick;
@@ -170,7 +175,7 @@ void moveForward(int targetdist) {
     // Debugging output
     Serial.print("Left: "); Serial.print(leftDistance);
     Serial.print(" cm | Right: "); Serial.print(rightDistance);
-    Serial.print(" cm | Center: "); Serial.print(centerDistance);
+    // Serial.print(" cm | Center: "); Serial.print(centerDistance);
     Serial.print(" cm | Correction: "); Serial.println(correction);
 
     // Stop condition when close to target

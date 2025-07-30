@@ -22,9 +22,9 @@
 #define M1_ENC_B PB8  // Left Encoder B
 
 // TOF Sensor Pins
-#define TOF_LEFT_XSHUT PB15  
-#define TOF_CENTER_XSHUT PA9  
-#define TOF_RIGHT_XSHUT PB13  
+#define TOF_LEFT_XSHUT PB14  
+#define TOF_CENTER_XSHUT PB13   
+#define TOF_RIGHT_XSHUT PB15  
 
 // Constants
 #define MAXSPEED 180

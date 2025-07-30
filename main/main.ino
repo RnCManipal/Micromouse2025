@@ -76,9 +76,14 @@ void setup() {
 
 
 void loop() {
+    moveForward(25);  // Move forward for 25 cm
+    delay(1000);  // Wait for a second
+    moveForward(25);  // Move forward for another 25 cm
+    delay(1000);  // Wait for a second
+    
+    // Uncomment the following lines to test movement functions
+  
 
-  floodfill();
-  delay(15000);
     // moveForward(25);
     // moveForward(25);
     // delay(1000);
