@@ -76,17 +76,9 @@ void setup() {
 
 
 void loop() {
-    moveForward(25);  // Move forward for 25 cm
-    delay(1000);  // Wait for a second
-    moveForward(25);  // Move forward for another 25 cm
-    delay(1000);  // Wait for a second
-    
-    // Uncomment the following lines to test movement functions
-  
-
-    // moveForward(25);
-    // moveForward(25);
-    // delay(1000);
-    // Turn180();
-    // delay(1000);
+    TurnLeft();
+    delay(1000);  // Move forward for 1 second
+    TurnRight();
+    delay(1000);  // Move forward for another second
+ // Turn right for 1 second
 }

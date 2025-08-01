@@ -6,17 +6,14 @@ float prevTofError = 0;
 float distkp = 0.1, distkd = 0.8;
 float prevDistError = 0;
 
-double kpT = 0.5, kiT = 0.0, kdT = 2.0;
+double kpT = 12 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
-double kpL = 0.09, kdL = 1.1;
-double kpR = 0.11, kdR = 1.2;
-
-// PID Constants
-const double KP_DIST_LEFT = 0.05, KD_DIST_LEFT = 0.01;
-const double KP_DIST_RIGHT = 0.05, KD_DIST_RIGHT = 0.01;
-const double KP_YAW = 2, KI_YAW = 0.0, KD_YAW = 0.5;
+// PID Constants for move forward
+const double KP_DIST_LEFT = 0.10, KD_DIST_LEFT = 0.02;
+const double KP_DIST_RIGHT = 0.12, KD_DIST_RIGHT = 0.02;
+const double KP_YAW = 1.5, KI_YAW = 0.0, KD_YAW = 0.8;
 double left_dist, right_dist, front_dist;
 double targetYaw;
 bool flag=true;
@@ -100,8 +97,13 @@ void moveForward(int distanceCm) {
         
 
         double speedFactor = constrain(max(abs(errorLeft), abs(errorRight)) / slowdownStart, 0.4, 1.0);
+
         int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) - yawCorrection;
         int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) + yawCorrection;
+
+        Serial.print("Left Speed:");Serial.println(leftSpeed);
+        Serial.print("right Speed:");Serial.println(rightSpeed);
+        Serial.print("Wall error:");Serial.println(wallError);
 
         lspeed = errorLeft;
         rspeed = errorRight;
@@ -116,12 +118,17 @@ void moveForward(int distanceCm) {
         prevErrorRight = errorRight;
         delay(5);
     }
+
+    if (abs(targetYaw - mpu.getAngleZ())>0){
+        //Rotate to correct yaw
+        rotateInPlace(targetYaw - mpu.getAngleZ(), 20);
+    }
 }
 
 
 void Motor_SetSpeed(int spdL, int spdR) {
-    spdL = constrain(spdL * 1.48, -255, 255);
-    spdR = constrain(spdR * 1.48, -255, 255);
+    spdL = constrain(spdL * 1.8, -255, 255);
+    spdR = constrain(spdR * 1.8, -255, 255);
 
     if (spdL == 0) {
         digitalWrite(M1_in1, LOW);
@@ -153,11 +160,10 @@ void Motor_SetSpeed(int spdL, int spdR) {
 }
 
 // Define the minimum PWM value as a constant or variable
-const int MIN_PWM = 60; // Use 'const' if this value won't change during runtime
+const int MIN_PWM = 90; // Use 'const' if this value won't change during runtime
 // int minPwmValue = 60; // Use a regular 'int' if you need to change it
 
 void setMotorSpeeds(int leftSpeed, int rightSpeed) {
-    int MIN_PWM=0; 
     int actualLeftSpeed = leftSpeed;
     int actualRightSpeed = rightSpeed;
 
@@ -223,7 +229,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
           //  speed /= 2;  // Reduce speed when the bot is close to the target angle
         // }
 
-        if (abs(error) < 0.5 && abs(derivative) < 0.5) {  // Ensure it's not moving fast
+        if (abs(error) < 0.5 && abs(derivative)<0.1) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;
@@ -243,15 +249,15 @@ void brakeMotors() {
 }
 
 void TurnLeft() {
-    rotateInPlace(90.0, 20);
+    rotateInPlace(-90.0, 30);
 }
 
 void TurnRight() {
-    rotateInPlace(-90.0, 20);
+    rotateInPlace(90.0, 30);
 }
 
 void Turn180() {
-    rotateInPlace(180.0, 20);
+    rotateInPlace(180.0, 30);
 }
 
 void brake() {
