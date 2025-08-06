@@ -1,6 +1,5 @@
 #include "movement.h"
 
-float tofkp = 2, tofkd = 5;
 float prevTofError = 0;
 
 float distkp = 0.1, distkd = 0.8;
@@ -58,7 +57,7 @@ void moveForward(int distanceCm) {
     // Wall following constants
     const double DESIRED_WALL_DIST = 70.0; // mm
     const double WALL_DETECT_THRESHOLD = 130.0; // mm
-    const double WALL_FOLLOW_KP = 0.34; // tune this
+    const double WALL_FOLLOW_KP = 0.33; // tune this
 
     while (true) {
         mpu.update();
@@ -80,10 +79,10 @@ void moveForward(int distanceCm) {
         if (leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - left_dist) + (DESIRED_WALL_DIST - right_dist);
         } 
-        if (leftWall && !rightWall) {
+        if (!leftWall && rightWall) {
             wallError = (DESIRED_WALL_DIST - left_dist);
         } 
-        if (!leftWall && rightWall) {
+        if (leftWall && !rightWall) {
             wallError = -(DESIRED_WALL_DIST - right_dist);
         } 
         if(!leftWall && !rightWall){
@@ -120,7 +119,10 @@ void moveForward(int distanceCm) {
         delay(5);
     }
 
-    
+    if (abs(targetYaw - mpu.getAngleZ())>0){
+        //Rotate to correct yaw
+        rotateInPlace(targetYaw - mpu.getAngleZ(), 20);
+    }
     
 }
 
