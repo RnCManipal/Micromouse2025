@@ -338,68 +338,68 @@ int floodfill() {
         Serial.print(" Front: ");
         Serial.println(front_wall);
         if(facing==0){
-            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
             } else {
                 wall_data[position[0]][position[1]][3] = 0;
             }
-            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // W wall
             } else {
                 wall_data[position[0]][position[1]][0] = 0;
             }
-            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // N wall
             } else {
                 wall_data[position[0]][position[1]][1] = 0;
             }
         }
         if(facing==1){
-            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // left wall
             } else {
                 wall_data[position[0]][position[1]][0] = 0;
             }
-            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // front wall
             } else {
                 wall_data[position[0]][position[1]][1] = 0;
             }
-            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // right wall
             } else {
                 wall_data[position[0]][position[1]][2] = 0;
             }
         }
         if(facing==2){
-            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // N wall
             } else {
                 wall_data[position[0]][position[1]][1] = 0;
             }
-            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // E wall
             } else {
                 wall_data[position[0]][position[1]][2] = 0;
             }
-            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
             } else {
                 wall_data[position[0]][position[1]][3] = 0;
             }
         }
         if(facing==3){
-            if (getDistance(tofLeft) < 120 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // E wall
             } else {
                 wall_data[position[0]][position[1]][2] = 0;
             }
-            if (getDistance(tofCenter) < 120 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
             } else {
                 wall_data[position[0]][position[1]][3] = 0;
             }
-            if (getDistance(tofRight) < 120 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // West wall
             } else {
                 wall_data[position[0]][position[1]][0] = 0;
@@ -461,7 +461,7 @@ int floodfill() {
         Serial.print("Current facing:" );
         Serial.println(facing);
     }
-
+    delay(7000);
     print_path_taken();
     return 0;
 }

@@ -11,9 +11,9 @@ double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 // PID Constants for move forward
-const double KP_DIST_LEFT = 0.10, KD_DIST_LEFT = 0.02;
-const double KP_DIST_RIGHT = 0.12, KD_DIST_RIGHT = 0.02;
-const double KP_YAW = 1.5, KI_YAW = 0.0, KD_YAW = 0.8;
+const double KP_DIST_LEFT = 0.03, KD_DIST_LEFT = 0.02;
+const double KP_DIST_RIGHT = 0.06, KD_DIST_RIGHT = 0.02;
+const double KP_YAW = 1.5, KI_YAW = 0.0, KD_YAW = 0.1;
 double left_dist, right_dist, front_dist;
 double targetYaw;
 bool flag=true;
@@ -57,8 +57,8 @@ void moveForward(int distanceCm) {
 
     // Wall following constants
     const double DESIRED_WALL_DIST = 70.0; // mm
-    const double WALL_DETECT_THRESHOLD = 100.0; // mm
-    const double WALL_FOLLOW_KP = 0.2; // tune this
+    const double WALL_DETECT_THRESHOLD = 130.0; // mm
+    const double WALL_FOLLOW_KP = 0.34; // tune this
 
     while (true) {
         mpu.update();
@@ -70,7 +70,7 @@ void moveForward(int distanceCm) {
         double errorRight = targetCounts - rightEncoderCount;
 
         // Base yaw correction (original functionality)
-        double yawCorrection = KP_YAW * (targetYaw - mpu.getAngleZ());
+        double yawCorrection = KP_YAW * -(targetYaw - mpu.getAngleZ());
     
         // Wall-following adjustment — added on top of yaw correction
         bool leftWall = (left_dist < WALL_DETECT_THRESHOLD && left_dist>0);
@@ -80,23 +80,24 @@ void moveForward(int distanceCm) {
         if (leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - left_dist) + (DESIRED_WALL_DIST - right_dist);
         } 
-        if (!leftWall && rightWall) {
+        if (leftWall && !rightWall) {
             wallError = (DESIRED_WALL_DIST - left_dist);
         } 
-        if (leftWall && !rightWall) {
+        if (!leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - right_dist);
         } 
         if(!leftWall && !rightWall){
             wallError = 0;
         }
         yawCorrection += WALL_FOLLOW_KP * wallError ;
-        if(front_dist < 70 && front_dist>0){
+        if(front_dist < 100 && front_dist>0){
             brakeMotors();
             break;
+            
         }
         
 
-        double speedFactor = constrain(max(abs(errorLeft), abs(errorRight)) / slowdownStart, 0.4, 1.0);
+       
 
         int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) - yawCorrection;
         int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) + yawCorrection;
@@ -119,16 +120,14 @@ void moveForward(int distanceCm) {
         delay(5);
     }
 
-    if (abs(targetYaw - mpu.getAngleZ())>0){
-        //Rotate to correct yaw
-        rotateInPlace(targetYaw - mpu.getAngleZ(), 20);
-    }
+    
+    
 }
 
 
 void Motor_SetSpeed(int spdL, int spdR) {
-    spdL = constrain(spdL * 1.8, -255, 255);
-    spdR = constrain(spdR * 1.8, -255, 255);
+    spdL = constrain(spdL * 2, -255, 255);
+    spdR = constrain(spdR * 2, -255, 255);
 
     if (spdL == 0) {
         digitalWrite(M1_in1, LOW);
@@ -160,11 +159,11 @@ void Motor_SetSpeed(int spdL, int spdR) {
 }
 
 // Define the minimum PWM value as a constant or variable
-const int MIN_PWM = 90; // Use 'const' if this value won't change during runtime
+const int MIN_PWM = 110; // Use 'const' if this value won't change during runtime
 // int minPwmValue = 60; // Use a regular 'int' if you need to change it
 
 void setMotorSpeeds(int leftSpeed, int rightSpeed) {
-    int actualLeftSpeed = leftSpeed;
+    int actualLeftSpeed = leftSpeed*0.72;
     int actualRightSpeed = rightSpeed;
 
     // Enforce minimum PWM for non-zero speeds

@@ -76,9 +76,13 @@ void setup() {
 
 
 void loop() {
-    TurnLeft();
-    delay(1000);  // Move forward for 1 second
-    TurnRight();
-    delay(1000);  // Move forward for another second
+    //delay(3000);  // Move forward for 1 second
+    //TurnRight();
+   // delay(3000);  // Move forward for another second
  // Turn right for 1 second
+ floodfill();
+ //Turn180();
+ delay(1000);
+ //moveForward(25);
+ 
 }
