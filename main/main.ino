@@ -3,17 +3,10 @@
 #include "movement.h"
 #include "floodfill.h"
 void setup() {
-    delay(5000);  // Initial delay (if needed)
+    delay(2000);  // Initial delay (if needed)
     Serial.begin(115200);
     Wire.begin();
-    display.setRotation(2);
-    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-        Serial.println("Display failed! Restarting...");
-        delay(5000);
-        NVIC_SystemReset();
-    }
-    display.clearDisplay();
-    display.display();
+   
     
     // === ToF Sensor Initialization ===
     pinMode(TOF_LEFT_XSHUT, OUTPUT);
@@ -80,9 +73,14 @@ void loop() {
     //TurnRight();
    // delay(3000);  // Move forward for another second
  // Turn right for 1 second
- floodfill();
- //Turn180();
- delay(1000);
  //moveForward(25);
+ //Turn180();
+ floodfill();
+ delay(15000);
+ print_path_taken();
+ reduceDirections(path_taken);
+ final_run(short_path);
+ //moveForward(25);
+ 
  
 }

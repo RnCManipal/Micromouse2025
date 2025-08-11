@@ -7,7 +7,7 @@
 #define WHEEL_DIAMETER_CM 4.4
 #define MIN_MOTOR_SPEED 30      
 #define MAX_MOTOR_SPEED 180     
-#define STOP_THRESHOLD 355
+#define STOP_THRESHOLD 370 //355
 #define SLOWDOWN_FACTOR 0.8
 
 extern float tofkp, tofkd, prevTofError;

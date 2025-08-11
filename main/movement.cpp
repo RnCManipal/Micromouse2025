@@ -2,7 +2,7 @@
 
 float prevTofError = 0;
 
-float distkp = 0.1, distkd = 0.8;
+
 float prevDistError = 0;
 
 double kpT = 12 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
@@ -10,9 +10,9 @@ double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 // PID Constants for move forward
-const double KP_DIST_LEFT = 0.03, KD_DIST_LEFT = 0.02;
-const double KP_DIST_RIGHT = 0.06, KD_DIST_RIGHT = 0.02;
-const double KP_YAW = 1.5, KI_YAW = 0.0, KD_YAW = 0.1;
+const double KP_DIST_LEFT = 0.07, KD_DIST_LEFT = 0.03;
+const double KP_DIST_RIGHT = 0.07, KD_DIST_RIGHT = 0.03;
+const double KP_YAW = 1.4, KI_YAW = 0.0, KD_YAW = 0.2;
 double left_dist, right_dist, front_dist;
 double targetYaw;
 bool flag=true;
@@ -55,9 +55,9 @@ void moveForward(int distanceCm) {
     Serial.println(targetCounts);
 
     // Wall following constants
-    const double DESIRED_WALL_DIST = 70.0; // mm
-    const double WALL_DETECT_THRESHOLD = 130.0; // mm
-    const double WALL_FOLLOW_KP = 0.33; // tune this
+    const double DESIRED_WALL_DIST = 80.0; // mm
+    const double WALL_DETECT_THRESHOLD = 250.0; // mm
+    const double WALL_FOLLOW_KP = 0.65; // tune this
 
     while (true) {
         mpu.update();
@@ -79,10 +79,10 @@ void moveForward(int distanceCm) {
         if (leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - left_dist) + (DESIRED_WALL_DIST - right_dist);
         } 
-        if (!leftWall && rightWall) {
-            wallError = (DESIRED_WALL_DIST - left_dist);
-        } 
         if (leftWall && !rightWall) {
+            wallError = -(DESIRED_WALL_DIST - left_dist);
+        } 
+        if (!leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - right_dist);
         } 
         if(!leftWall && !rightWall){
@@ -95,15 +95,13 @@ void moveForward(int distanceCm) {
             
         }
         
+        
 
        
 
         int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) - yawCorrection;
         int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) + yawCorrection;
 
-        Serial.print("Left Speed:");Serial.println(leftSpeed);
-        Serial.print("right Speed:");Serial.println(rightSpeed);
-        Serial.print("Wall error:");Serial.println(wallError);
 
         lspeed = errorLeft;
         rspeed = errorRight;
@@ -120,10 +118,27 @@ void moveForward(int distanceCm) {
     }
 
     if (abs(targetYaw - mpu.getAngleZ())>0){
-        //Rotate to correct yaw
         rotateInPlace(targetYaw - mpu.getAngleZ(), 20);
     }
-    
+
+    //if(front_dist < 155 && front_dist>90){
+            
+            //front_dist = getDistance(tofCenter);
+            //moveForward(front_dist-85);
+        //}
+
+   for(front_dist = getDistance(tofCenter);front_dist < 200 && front_dist>100;front_dist = getDistance(tofCenter)){
+      digitalWrite(M1_in1, HIGH);
+    digitalWrite(M1_in2, LOW);
+   analogWrite(M1_PWM, 120);
+    digitalWrite(M2_in1, HIGH);
+       digitalWrite(M2_in2, LOW);
+     analogWrite(M2_PWM, 120);
+   }
+   digitalWrite(M1_in1, LOW);
+   digitalWrite(M1_in2, LOW);
+   digitalWrite(M2_in1, LOW);
+   digitalWrite(M2_in2, LOW);
 }
 
 
@@ -165,8 +180,8 @@ const int MIN_PWM = 110; // Use 'const' if this value won't change during runtim
 // int minPwmValue = 60; // Use a regular 'int' if you need to change it
 
 void setMotorSpeeds(int leftSpeed, int rightSpeed) {
-    int actualLeftSpeed = leftSpeed*0.72;
-    int actualRightSpeed = rightSpeed;
+    int actualLeftSpeed = leftSpeed;
+    int actualRightSpeed = 1.1*rightSpeed;
 
     // Enforce minimum PWM for non-zero speeds
     if (actualLeftSpeed > 0 && actualLeftSpeed < MIN_PWM) {
@@ -230,7 +245,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
           //  speed /= 2;  // Reduce speed when the bot is close to the target angle
         // }
 
-        if (abs(error) < 0.5 && abs(derivative)<0.1) {  // Ensure it's not moving fast
+        if (abs(error) < 0.4 && abs(derivative)<0.08) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;
@@ -250,15 +265,20 @@ void brakeMotors() {
 }
 
 void TurnLeft() {
-    rotateInPlace(-90.0, 30);
+    rotateInPlace(-90.0, 35);
 }
 
 void TurnRight() {
-    rotateInPlace(90.0, 30);
+    rotateInPlace(90.0, 35);
 }
 
 void Turn180() {
-    rotateInPlace(180.0, 30);
+    if(getDistance(tofLeft)>getDistance(tofRight)){
+        rotateInPlace(-180.0, 35);
+        }
+    else{
+        rotateInPlace(180,35);
+    }
 }
 
 void brake() {

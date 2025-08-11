@@ -4,7 +4,7 @@
 #define MAX 1000
 #include <floodfill.h>
 #include "data_structures.h"
-
+const float steplength=25;
 const short length = 6;
 short y_length = length;
 char path_taken[length * length];
@@ -262,7 +262,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
     if (facing == direction1) {
         Serial.println("Forward");
-        moveForward(25);
+        moveForward(steplength);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'F';
@@ -273,7 +273,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     } else if ((facing + 1) % 4 == direction1) {
         Serial.println("Right");
         TurnRight();
-        moveForward(25);
+        moveForward(steplength);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'L'; // Opposite of 'R'
@@ -284,7 +284,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     } else if (facing == (direction1 + 1) % 4) {
         Serial.println("Left");
         TurnLeft();
-        moveForward(25);
+        moveForward(steplength);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'R'; // Opposite of 'L'
@@ -295,7 +295,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     } else {
         Serial.println("Backward");
         Turn180();
-        moveForward(25);
+        moveForward(steplength);
         // Remove the last move if it exists
         if (short_path_index > 0) {
             short_path_index--;
@@ -340,70 +340,70 @@ int floodfill() {
         if(facing==0){
             if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
-            } else {
-                wall_data[position[0]][position[1]][3] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][3] = 0;
+            //}
             if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // W wall
-            } else {
-                wall_data[position[0]][position[1]][0] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][0] = 0;
+            //}
             if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // N wall
-            } else {
-                wall_data[position[0]][position[1]][1] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][1] = 0;
+            //}
         }
         if(facing==1){
             if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // left wall
-            } else {
-                wall_data[position[0]][position[1]][0] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][0] = 0;
+            //}
             if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // front wall
-            } else {
-                wall_data[position[0]][position[1]][1] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][1] = 0;
+            //}
             if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // right wall
-            } else {
-                wall_data[position[0]][position[1]][2] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][2] = 0;
+            //}
         }
         if(facing==2){
             if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // N wall
-            } else {
-                wall_data[position[0]][position[1]][1] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][1] = 0;
+            //}
             if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // E wall
-            } else {
-                wall_data[position[0]][position[1]][2] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][2] = 0;
+            //}
             if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
-            } else {
-                wall_data[position[0]][position[1]][3] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][3] = 0;
+            //}
         }
         if(facing==3){
             if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // E wall
-            } else {
-                wall_data[position[0]][position[1]][2] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][2] = 0;
+            //}
             if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
-            } else {
-                wall_data[position[0]][position[1]][3] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][3] = 0;
+            //}
             if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // West wall
-            } else {
-                wall_data[position[0]][position[1]][0] = 0;
-            }
+            } //else {
+                //wall_data[position[0]][position[1]][0] = 0;
+            //}
         }
 
         for(int j=0;j<4;j++){
@@ -423,7 +423,6 @@ int floodfill() {
         }
 
         int turn_direction = direction_wrt_bot(arena_map, position, facing, wall_data);
-
         switch (turn_direction) {
             case 0:
                 facing = facing - 1;
@@ -454,7 +453,6 @@ int floodfill() {
 
         // Push previous position to queue for path tracking
         queue.push(prev_x, prev_y);
-
         Serial.print("Current position:" );
         Serial.println(position[0]);
         Serial.print(position[1]);
@@ -463,6 +461,7 @@ int floodfill() {
     }
     delay(7000);
     print_path_taken();
+    reduceDirections(short_path);
     return 0;
 }
 
