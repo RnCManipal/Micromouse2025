@@ -12,6 +12,10 @@ int path_index = 0;
 char path[256];
 Queue queue;
 
+const double KP_DIST_LEFT = 0.07,KD_DIST_LEFT = 0.03, KP_DIST_RIGHT = 0.1,KD_DIST_RIGHT = 0.03;
+
+const double KP_DIST_LEFT2 = 0.06,KD_DIST_LEFT2 = 0.6,KP_DIST_RIGHT2 = 0.09,KD_DIST_RIGHT2 = 0.6;
+
 bool last_was_back = false;
 char short_path[256];
 int short_path_index = 0;
@@ -262,7 +266,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
     if (facing == direction1) {
         Serial.println("Forward");
-        moveForward(steplength);
+        moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'F';
@@ -273,7 +277,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     } else if ((facing + 1) % 4 == direction1) {
         Serial.println("Right");
         TurnRight();
-        moveForward(steplength);
+        moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'L'; // Opposite of 'R'
@@ -284,7 +288,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     } else if (facing == (direction1 + 1) % 4) {
         Serial.println("Left");
         TurnLeft();
-        moveForward(steplength);
+        moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'R'; // Opposite of 'L'
@@ -295,7 +299,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     } else {
         Serial.println("Backward");
         Turn180();
-        moveForward(steplength);
+        moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
         // Remove the last move if it exists
         if (short_path_index > 0) {
             short_path_index--;
@@ -459,11 +463,64 @@ int floodfill() {
         Serial.print("Current facing:" );
         Serial.println(facing);
     }
-    delay(7000);
-    print_path_taken();
+    delay(15000);
     reduceDirections(short_path);
+     for(int i=0;i<length;i++){
+    for(int j=0;j<length;j++){
+    Serial.print(arena_map[i][j]);
+    Serial.print(" ");
+ } Serial.println();
+ }
     return 0;
 }
+
+//int directionIndex(char dir) {
+   // switch (dir) {
+     //   case 'N': return 0;
+       // case 'E': return 1;
+       // case 'S': return 2;
+       // case 'W': return 3;
+       // default: return -1;
+    //}
+//}
+
+// Determine turn from 'from' to 'to'
+//void makeTurn(char from, char to) {
+   // int f = directionIndex(from);
+    //int t = directionIndex(to);
+    //int diff = (t - f + 4) % 4;
+
+    //if (diff == 1) {
+      //  TurnRight();
+    //} else if (diff == 3) {
+      //  TurnLeft();
+    //} else if (diff == 2) {
+      //  Turn180();
+    //}
+//}
+
+// Final run function
+//void final_run(const char* reduced) {
+//     if (reduced[0] == '\0') return;
+
+//     char current = reduced[0];
+//     int steps = 1;
+
+//     for (int i = 1; reduced[i] != '\0'; i++) {
+//         char next = reduced[i];
+//         if (next == current) {
+//             steps++;
+//         } else {
+//             moveForward(25 * steps);
+//             makeTurn(current, next);
+//             current = next;
+//             steps = 1;
+//         }
+//     }
+//     moveForward(25 * steps);  // Final move
+// //}
+
+
 
 int directionIndex(char dir) {
     switch (dir) {
@@ -475,39 +532,55 @@ int directionIndex(char dir) {
     }
 }
 
-// Determine turn from 'from' to 'to'
-void makeTurn(char from, char to) {
-    int f = directionIndex(from);
-    int t = directionIndex(to);
-    int diff = (t - f + 4) % 4;
+void final_run(const char short_path[]) {
+    if (short_path[0] == '\0') return; // empty path check
 
-    if (diff == 1) {
-        TurnRight();
-    } else if (diff == 3) {
-        TurnLeft();
-    } else if (diff == 2) {
-        Turn180();
-    }
-}
-
-// Final run function
-void final_run(const char* reduced) {
-    if (reduced[0] == '\0') return;
-
-    char current = reduced[0];
+    int facingDir = directionIndex('N');       // always start facing North
+    int currentDir = directionIndex(short_path[0]);
     int steps = 1;
 
-    for (int i = 1; reduced[i] != '\0'; i++) {
-        char next = reduced[i];
-        if (next == current) {
-            steps++;
+    // If the first move is not in the same direction as facing, turn first
+    if (currentDir != facingDir) {
+        int diff = (currentDir - facingDir + 4) % 4;
+        if (diff == 1) TurnRight();
+        else if (diff == 3) TurnLeft();
+        else if (diff == 2) Turn180();
+        facingDir = currentDir;
+    }
+
+    for (int i = 1; short_path[i] != '\0'; i++) {
+        int nextDir = directionIndex(short_path[i]);
+
+        if (nextDir == currentDir) {
+            steps++; // keep going straight
         } else {
-            moveForward(25 * steps);
-            makeTurn(current, next);
-            current = next;
+            // Move forward accumulated distance
+            if(steps!=1){
+                moveForward(steps*25*0.9 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+            }
+            else{
+                moveForward(steps*25 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+
+            }
+
+            // Turn towards the new direction
+            int diff = (nextDir - facingDir + 4) % 4;
+            if (diff == 1) TurnRight();
+            else if (diff == 3) TurnLeft();
+            else if (diff == 2) Turn180();
+
+            facingDir = nextDir;
+            currentDir = nextDir;
             steps = 1;
         }
     }
-    moveForward(25 * steps);  // Final move
-}
+
+    // Final move after loop
+            if(steps!=1){
+                moveForward(steps*25*0.9 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+            }
+            else{
+                moveForward(steps*25 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+
+            }}
 

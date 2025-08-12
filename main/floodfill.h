@@ -17,6 +17,7 @@ extern int short_path_index;
 extern bool last_was_back;
 
 
+
 // Function Prototypes
 int isOpposite(char a, char b);
 void reduceDirections(const char* input);

@@ -11,8 +11,8 @@ double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 // PID Constants for move forward
 const double KP_DIST_LEFT = 0.07, KD_DIST_LEFT = 0.03;
-const double KP_DIST_RIGHT = 0.07, KD_DIST_RIGHT = 0.03;
-const double KP_YAW = 1.4, KI_YAW = 0.0, KD_YAW = 0.2;
+const double KP_DIST_RIGHT = 0.1, KD_DIST_RIGHT = 0.03;
+const double KP_YAW = 0.3, KI_YAW = 0.0, KD_YAW = 0.35;
 double left_dist, right_dist, front_dist;
 double targetYaw;
 bool flag=true;
@@ -40,7 +40,7 @@ void updateDisplay(const char* status) {
     display.display();
 }
 
-void moveForward(int distanceCm) {
+void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, double KP_DIST_RIGHT,double KD_DIST_RIGHT) {
     mpu.update();
     targetYaw = mpu.getAngleZ();
     leftEncoderCount = 0;
@@ -181,7 +181,7 @@ const int MIN_PWM = 110; // Use 'const' if this value won't change during runtim
 
 void setMotorSpeeds(int leftSpeed, int rightSpeed) {
     int actualLeftSpeed = leftSpeed;
-    int actualRightSpeed = 1.1*rightSpeed;
+    int actualRightSpeed = rightSpeed;
 
     // Enforce minimum PWM for non-zero speeds
     if (actualLeftSpeed > 0 && actualLeftSpeed < MIN_PWM) {
@@ -245,7 +245,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
           //  speed /= 2;  // Reduce speed when the bot is close to the target angle
         // }
 
-        if (abs(error) < 0.4 && abs(derivative)<0.08) {  // Ensure it's not moving fast
+        if (abs(error) < 0.3 && abs(derivative)<0.06) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;
