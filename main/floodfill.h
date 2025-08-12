@@ -17,9 +17,10 @@ extern int short_path_index;
 extern bool last_was_back;
 
 
+
 // Function Prototypes
 int isOpposite(char a, char b);
-void reduceDirections(const String &input);
+void reduceDirections(const char* input);
 void print_maze(int bot_x, int bot_y);
 void print_path_taken();
 void swap(int* x, int* y);
@@ -29,5 +30,6 @@ void rearrange_map(short int arena_map[6][6], short int base_pos[2], bool wall_d
 int direction_wrt_compass(short int arena_map[6][6], short int bot_pos[2], bool wall_data[][6][4]);
 int direction_wrt_bot(short int arena_map[6][6], short int bot_pos[2], int facing, bool wall_data[][6][4]);
 int floodfill();
+void final_run(const char* reduced);
 
 #endif /* FLOODFILL_H_ */
