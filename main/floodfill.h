@@ -15,11 +15,8 @@ extern const short length;
 extern char short_path[4000];
 extern int short_path_index;
 extern bool last_was_back;
-<<<<<<< HEAD
 extern short arena_map[16][16];
-=======
-extern short arena_map[6][6];
->>>>>>> 349be6315b8d4dc1691396518c14d44a8832573b
+
 
 
 // Function Prototypes
