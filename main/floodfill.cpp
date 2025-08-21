@@ -312,10 +312,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
 #include "data_structures.h"  // Make sure to include your custom structures
 
-
-
-int floodfill() {
-    short arena_map[length][length] = {
+short arena_map[length][length] = {
         { 4, 3, 2, 2, 3, 4 },
         { 3, 2, 1, 1, 2, 3 },
         { 2, 1, 0, 0, 1, 2 },
@@ -323,6 +320,9 @@ int floodfill() {
         { 3, 2, 1, 1, 2, 3 },
         { 4, 3, 2, 2, 3, 4 },
     };
+
+int floodfill() {
+  
 
     short position[2] = {5, 0};
     int facing = 1;

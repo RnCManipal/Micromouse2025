@@ -78,14 +78,15 @@ void loop() {
  floodfill();
  delay(10000);
  
- print_path_taken();
- reduceDirections(path_taken);
- for(int i=0;i<256;i++){
-    Serial.print(short_path[i]);
-    Serial.print("\t");
- }
+//  print_path_taken();
+//  reduceDirections(path_taken);
+//  for(int i=0;i<256;i++){
+//     Serial.print(short_path[i]);
+//     Serial.print("\t");
+//  }
 
- final_run(short_path);
+final_run(short_path);
+delay(10000);
  //moveForward(25);
  
  
