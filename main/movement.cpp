@@ -118,7 +118,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     }
 
     if (abs(targetYaw - mpu.getAngleZ())>0){
-        rotateInPlace(targetYaw - mpu.getAngleZ(), 20);
+        rotateInPlace(targetYaw - mpu.getAngleZ(), 18);
     }
 
     //if(front_dist < 155 && front_dist>90){
@@ -245,7 +245,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
           //  speed /= 2;  // Reduce speed when the bot is close to the target angle
         // }
 
-        if (abs(error) < 0.3 && abs(derivative)<0.06) {  // Ensure it's not moving fast
+        if (abs(error) < 0.3 && abs(derivative)<0.05) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;

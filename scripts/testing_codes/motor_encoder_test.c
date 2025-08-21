@@ -44,8 +44,8 @@ void setup() {
   digitalWrite(M2_in2, LOW);
 
   // Set PWM speed (range 0-255)
-  analogWrite(M1_PWM, 100);
-  analogWrite(M2_PWM, 100);
+  analogWrite(M1_PWM, 0);
+  analogWrite(M2_PWM, 0);
 }
 
 void loop() {
