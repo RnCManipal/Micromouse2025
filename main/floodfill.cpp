@@ -323,6 +323,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 #include "data_structures.h"  // Make sure to include your custom structures
 
 short arena_map[length][length] = {
+<<<<<<< HEAD
         {14,13,12,11,10, 9, 8, 7, 7, 8, 9,10,11,12,13,14},
         {13,12,11,10, 9, 8, 7, 6, 6, 7, 8, 9,10,11,12,13},
         {12,11,10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9,10,11,12},
@@ -339,12 +340,24 @@ short arena_map[length][length] = {
         {12,11,10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9,10,11,12},
         {13,12,11,10, 9, 8, 7, 6, 6, 7, 8, 9,10,11,12,13},
         {14,13,12,11,10, 9, 8, 7, 7, 8, 9,10,11,12,13,14}
+=======
+        { 4, 3, 2, 2, 3, 4 },
+        { 3, 2, 1, 1, 2, 3 },
+        { 2, 1, 0, 0, 1, 2 },
+        { 2, 1, 0, 0, 1, 2 },
+        { 3, 2, 1, 1, 2, 3 },
+        { 4, 3, 2, 2, 3, 4 },
+>>>>>>> 349be6315b8d4dc1691396518c14d44a8832573b
     };
 
 int floodfill() {
   
 
+<<<<<<< HEAD
     short position[2] = {15, 15};
+=======
+    short position[2] = {5, 0};
+>>>>>>> 349be6315b8d4dc1691396518c14d44a8832573b
     int facing = 1;
     int left_wall;
     int right_wall;

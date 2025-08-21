@@ -29,6 +29,7 @@ void setup() {
 
   // Encoder Pins
   pinMode(M1_ENC_A, INPUT_PULLUP);
+  
   pinMode(M1_ENC_B, INPUT_PULLUP);
   pinMode(M2_ENC_A, INPUT_PULLUP);
   pinMode(M2_ENC_B, INPUT_PULLUP);
