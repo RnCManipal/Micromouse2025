@@ -4,7 +4,7 @@
 #define MAX 1000
 #include <floodfill.h>
 #include "data_structures.h"
-const float steplength=25;
+const float steplength=25.5;
 const short length = 6;
 short y_length = length;
 char path_taken[length * length];
