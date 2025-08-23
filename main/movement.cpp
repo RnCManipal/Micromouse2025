@@ -58,6 +58,8 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     const double DESIRED_WALL_DIST = 80.0; // mm
     const double WALL_DETECT_THRESHOLD = 250.0; // mm
     const double WALL_FOLLOW_KP = 0.65; // tune this
+    const double WALL_FOLLOW_KD = 0.05;
+    double prevwallError = 0;
 
     while (true) {
         mpu.update();
@@ -75,6 +77,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
         bool leftWall = (left_dist < WALL_DETECT_THRESHOLD && left_dist>0);
         bool rightWall = (right_dist < WALL_DETECT_THRESHOLD && right_dist>0);
         double wallError = 0;
+        
 
         if (leftWall && rightWall) {
             wallError = -(DESIRED_WALL_DIST - left_dist) + (DESIRED_WALL_DIST - right_dist);
@@ -88,7 +91,8 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
         if(!leftWall && !rightWall){
             wallError = 0;
         }
-        yawCorrection += WALL_FOLLOW_KP * wallError ;
+        yawCorrection += WALL_FOLLOW_KP * wallError + WALL_FOLLOW_KD * (wallError - prevwallError ) ;
+        prevwallError=wallError;
         if(front_dist < 100 && front_dist>0){
             brakeMotors();
             break;
@@ -118,7 +122,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     }
 
     if (abs(targetYaw - mpu.getAngleZ())>0){
-        rotateInPlace(targetYaw - mpu.getAngleZ(), 20);
+        rotateInPlace(targetYaw - mpu.getAngleZ(), 18);
     }
 
     //if(front_dist < 155 && front_dist>90){
@@ -245,7 +249,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
           //  speed /= 2;  // Reduce speed when the bot is close to the target angle
         // }
 
-        if (abs(error) < 0.3 && abs(derivative)<0.06) {  // Ensure it's not moving fast
+        if (abs(error) < 0.3 && abs(derivative)<0.05) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;

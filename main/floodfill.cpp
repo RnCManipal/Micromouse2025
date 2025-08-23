@@ -1,10 +1,11 @@
+
 #include <stdio.h>
 #include <string.h>
 
 #define MAX 1000
 #include <floodfill.h>
 #include "data_structures.h"
-const float steplength=25;
+const float steplength=25.5;
 const short length = 6;
 short y_length = length;
 char path_taken[length * length];
@@ -267,6 +268,9 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
     if (facing == direction1) {
         Serial.println("Forward");
         moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        if(getDistance(tofCenter)==-1){
+            moveForward(1.5,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        }
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'F';
@@ -278,6 +282,9 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         Serial.println("Right");
         TurnRight();
         moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        if(getDistance(tofCenter)==-1){
+            moveForward(1.5,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        }
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'L'; // Opposite of 'R'
@@ -289,6 +296,9 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         Serial.println("Left");
         TurnLeft();
         moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        if(getDistance(tofCenter)==-1){
+            moveForward(1.5,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        }
         if (last_was_back) {
             last_was_back = false;
             short_path[short_path_index++] = 'R'; // Opposite of 'L'
@@ -300,6 +310,9 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
         Serial.println("Backward");
         Turn180();
         moveForward(steplength,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        if(getDistance(tofCenter)==-1){
+            moveForward(1.5,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+        }
         // Remove the last move if it exists
         if (short_path_index > 0) {
             short_path_index--;
@@ -312,10 +325,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
 #include "data_structures.h"  // Make sure to include your custom structures
 
-
-
-int floodfill() {
-    short arena_map[length][length] = {
+short arena_map[length][length] = {
         { 4, 3, 2, 2, 3, 4 },
         { 3, 2, 1, 1, 2, 3 },
         { 2, 1, 0, 0, 1, 2 },
@@ -323,6 +333,9 @@ int floodfill() {
         { 3, 2, 1, 1, 2, 3 },
         { 4, 3, 2, 2, 3, 4 },
     };
+
+int floodfill() {
+  
 
     short position[2] = {5, 0};
     int facing = 1;
@@ -577,10 +590,10 @@ void final_run(const char short_path[]) {
 
     // Final move after loop
             if(steps!=1){
-                moveForward(steps*25*0.9 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+                moveForward(steps*steplength*0.9 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
             }
             else{
-                moveForward(steps*25 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+                moveForward(steps*steplength ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
 
             }}
 
