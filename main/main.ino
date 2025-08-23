@@ -17,6 +17,7 @@ void setup() {
     digitalWrite(TOF_RIGHT_XSHUT, LOW);
     delay(10);
 
+    pinMode(SWITCH, INPUT);
     // Initialize left ToF
     digitalWrite(TOF_LEFT_XSHUT, HIGH);
     delay(50);
@@ -75,16 +76,11 @@ void loop() {
  // Turn right for 1 second
  //moveForward(25);
  //Turn180();
+
+
  floodfill();
  delay(10000);
  
- print_path_taken();
- reduceDirections(path_taken);
- for(int i=0;i<256;i++){
-    Serial.print(short_path[i]);
-    Serial.print("\t");
- }
-
  final_run(short_path);
  //moveForward(25);
  

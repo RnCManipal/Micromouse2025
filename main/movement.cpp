@@ -5,7 +5,7 @@ float prevTofError = 0;
 
 float prevDistError = 0;
 
-double kpT = 12 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
+double kpT = 10 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
@@ -57,7 +57,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     // Wall following constants
     const double DESIRED_WALL_DIST = 80.0; // mm
     const double WALL_DETECT_THRESHOLD = 250.0; // mm
-    const double WALL_FOLLOW_KP = 0.65; // tune this
+    const double WALL_FOLLOW_KP = 0.7; // tune this
     const double WALL_FOLLOW_KD = 0.05;
     double prevwallError = 0;
 

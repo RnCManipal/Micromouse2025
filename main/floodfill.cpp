@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <config.h>
 #define MAX 1000
 #include <floodfill.h>
 #include "data_structures.h"
@@ -12,7 +12,7 @@ char path_taken[length * length];
 int path_index = 0;
 char path[256];
 Queue queue;
-
+int output;
 const double KP_DIST_LEFT = 0.07,KD_DIST_LEFT = 0.03, KP_DIST_RIGHT = 0.1,KD_DIST_RIGHT = 0.03;
 
 const double KP_DIST_LEFT2 = 0.06,KD_DIST_LEFT2 = 0.6,KP_DIST_RIGHT2 = 0.09,KD_DIST_RIGHT2 = 0.6;
@@ -120,13 +120,46 @@ int* minimum_cost(short arena_map[length][length], short bot_pos[2], int *sorted
         right = arena_map[bot_pos[0]][bot_pos[1] + 1];
     }
 
-    int* return_value = new int[4]; // array to be returned
-    int temp_arr[4] = {left, top, right, bottom}; // array to be sorted
+    int *return_value = (int *)calloc(4, sizeof(int));
+    int temp_arr[4]; 
+
+   switch (output) {
+        case 0:
+            return_value[0] = 2; // r
+            return_value[1] = 1; // s
+            return_value[2] = 0; // l
+            return_value[3] = 3; // b
+
+            temp_arr[0] = right;
+            temp_arr[1] = top;
+            temp_arr[2] = left;
+            temp_arr[3] = bottom;
+            break;
+
+        case 1:
+            return_value[0] = 0; // l
+            return_value[1] = 1; // s
+            return_value[2] = 2; // r
+            return_value[3] = 3; // b
+
+            temp_arr[0] = left;
+            temp_arr[1] = top;
+            temp_arr[2] = right;
+            temp_arr[3] = bottom;
+            break;
+
+        default:
+            // handle unexpected output
+            temp_arr[0] = left;
+            temp_arr[1] = top;
+            temp_arr[2] = right;
+            temp_arr[3] = bottom;
+            break;
+    }
+
     int smallest = 0;
 
-    for (int i = 0; i < 4; i++) {
-        return_value[i] = i; // initializing return array to [0,1,2,3]
-    }
+
 
     // Sorting array (selection sort)
     for (int i = 0; i < 4; i++) {
@@ -154,6 +187,8 @@ int* minimum_cost(short arena_map[length][length], short bot_pos[2], int *sorted
 
     return return_value;
 }
+
+
 int minimum_value_accessible_neighbors(short arena_map[length][length], short pos[2], int *smallest_accessible_regardless, bool wall_data[length][length][4]) {
     /*returns 0 for left, 1 for forward, 2 for right, 3 for back, -1 if no minimum accessible neighbors
     Function verified
@@ -336,7 +371,7 @@ short arena_map[length][length] = {
 
 int floodfill() {
   
-
+    output=digitalRead(SWITCH);
     short position[2] = {5, 0};
     int facing = 1;
     int left_wall;
