@@ -5,13 +5,13 @@ float prevTofError = 0;
 
 float prevDistError = 0;
 
-double kpT = 10 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
+double kpT = 10 , kiT = 0.0, kdT = 0.6; //rotate in place PID constants
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 // PID Constants for move forward
 const double KP_DIST_LEFT = 0.1, KD_DIST_LEFT = 0.03;
-const double KP_DIST_RIGHT = 0.1, KD_DIST_RIGHT = 0.03;
+const double KP_DIST_RIGHT = 0.8, KD_DIST_RIGHT = 0.03;
 const double KP_YAW = 0.3, KI_YAW = 0.0, KD_YAW = 0.35;
 double left_dist, right_dist, front_dist;
 double targetYaw;
@@ -55,12 +55,13 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     Serial.println(targetCounts);
 
     // Wall following constants
-    const double DESIRED_WALL_DIST = 70.0; // mm
+    const double DESIRED_WALL_DIST = 55.0; // mm
     const double WALL_DETECT_THRESHOLD = 250.0; // mm
-    const double WALL_FOLLOW_KP = 0.65; // tune this
+    const double WALL_FOLLOW_KP = 0.7; // tune this
     const double WALL_FOLLOW_KD = 0.05;
     double prevwallError = 0;
-
+    bool leftWall = (left_dist < WALL_DETECT_THRESHOLD && left_dist>0);
+    bool rightWall = (right_dist < WALL_DETECT_THRESHOLD && right_dist>0);
     while (true) {
         mpu.update();
         left_dist = getDistance(tofLeft);
@@ -74,8 +75,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
         double yawCorrection = KP_YAW * -(targetYaw - mpu.getAngleZ());
     
         // Wall-following adjustment — added on top of yaw correction
-        bool leftWall = (left_dist < WALL_DETECT_THRESHOLD && left_dist>0);
-        bool rightWall = (right_dist < WALL_DETECT_THRESHOLD && right_dist>0);
+        
         double wallError = 0;
         
 
@@ -118,7 +118,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     }
 
     if (abs(targetYaw - mpu.getAngleZ())>0){
-        rotateInPlace(targetYaw - mpu.getAngleZ(), 18);
+        rotateInPlace(targetYaw - mpu.getAngleZ()+0.5, 18);
     }
 
     //if(front_dist < 155 && front_dist>90){
@@ -127,7 +127,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
             //moveForward(front_dist-85);
         //}
 
-   for(front_dist = getDistance(tofCenter);front_dist < 200 && front_dist>100;front_dist = getDistance(tofCenter)){
+   for(front_dist = getDistance(tofCenter);front_dist < 160 && front_dist>60;front_dist = getDistance(tofCenter)){
       digitalWrite(M1_in1, HIGH);
     digitalWrite(M1_in2, LOW);
    analogWrite(M1_PWM, 120);
@@ -181,7 +181,7 @@ const int MIN_PWM = 110; // Use 'const' if this value won't change during runtim
 
 void setMotorSpeeds(int leftSpeed, int rightSpeed) {
     int actualLeftSpeed = leftSpeed;
-    int actualRightSpeed = rightSpeed;
+    int actualRightSpeed = rightSpeed*0.6;
 
     // Enforce minimum PWM for non-zero speeds
     if (actualLeftSpeed > 0 && actualLeftSpeed < MIN_PWM) {
@@ -245,7 +245,7 @@ void rotateInPlace(float targetAngleDegrees, int maxSpeed) {
           //  speed /= 2;  // Reduce speed when the bot is close to the target angle
         // }
 
-        if (abs(error) < 0.3 && abs(derivative)<0.05) {  // Ensure it's not moving fast
+        if (abs(error) < 0.1 && abs(derivative)<0.05) {  // Ensure it's not moving fast
             break;
         }
         int direction = (error > 0) ? -1 : 1;
@@ -265,19 +265,19 @@ void brakeMotors() {
 }
 
 void TurnLeft() {
-    rotateInPlace(-90.0, 35);
+    rotateInPlace(-90.0, 30);
 }
 
 void TurnRight() {
-    rotateInPlace(90.0, 35);
+    rotateInPlace(90.0, 30);
 }
 
 void Turn180() {
     if(getDistance(tofLeft)>getDistance(tofRight)){
-        rotateInPlace(-180.0, 35);
+        rotateInPlace(-180.0, 30);
         }
     else{
-        rotateInPlace(180,35);
+        rotateInPlace(180,30);
     }
 }
 

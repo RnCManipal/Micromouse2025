@@ -5,7 +5,6 @@
 #include "movement.h"
 #include "data_structures.h" // Include the header with the Queue class
 
-
 // Global Variables (Declared as extern in the header, defined in the .c file)
 constexpr int length = 16;
 
@@ -18,8 +17,6 @@ extern char short_path[4000];
 extern int short_path_index;
 extern bool last_was_back;
 extern short arena_map[length][length];
-
-
 
 // Function Prototypes
 int isOpposite(char a, char b);
