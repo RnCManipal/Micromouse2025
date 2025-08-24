@@ -10,7 +10,7 @@ double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 // PID Constants for move forward
-const double KP_DIST_LEFT = 0.07, KD_DIST_LEFT = 0.03;
+const double KP_DIST_LEFT = 0.1, KD_DIST_LEFT = 0.03;
 const double KP_DIST_RIGHT = 0.1, KD_DIST_RIGHT = 0.03;
 const double KP_YAW = 0.3, KI_YAW = 0.0, KD_YAW = 0.35;
 double left_dist, right_dist, front_dist;
@@ -55,9 +55,9 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     Serial.println(targetCounts);
 
     // Wall following constants
-    const double DESIRED_WALL_DIST = 80.0; // mm
+    const double DESIRED_WALL_DIST = 70.0; // mm
     const double WALL_DETECT_THRESHOLD = 250.0; // mm
-    const double WALL_FOLLOW_KP = 0.7; // tune this
+    const double WALL_FOLLOW_KP = 0.65; // tune this
     const double WALL_FOLLOW_KD = 0.05;
     double prevwallError = 0;
 
@@ -99,10 +99,6 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
             
         }
         
-        
-
-       
-
         int leftSpeed = constrain(KP_DIST_LEFT * errorLeft + KD_DIST_LEFT * (errorLeft - prevErrorLeft), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) - yawCorrection;
         int rightSpeed = constrain(KP_DIST_RIGHT * errorRight + KD_DIST_RIGHT * (errorRight - prevErrorRight), -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED) + yawCorrection;
 
