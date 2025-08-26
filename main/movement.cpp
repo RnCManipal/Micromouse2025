@@ -1,8 +1,7 @@
 #include "movement.h"
 #include <math.h>
+
 float prevTofError = 0;
-
-
 float prevDistError = 0;
 
 double kpT = 0.5 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
@@ -10,15 +9,15 @@ double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
 // PID Constants for move forward
-const double KP_DIST_LEFT = 0.1, KD_DIST_LEFT = 0.03;
-const double KP_DIST_RIGHT = 0.1, KD_DIST_RIGHT = 0.03;
-const double KP_YAW =0.2, KI_YAW = 0.0, KD_YAW = 0.02;
+// const double KP_DIST_LEFT = 0.10, KD_DIST_LEFT = 0.03;
+// const double KP_DIST_RIGHT = 0.10, KD_DIST_RIGHT = 0.03;
+
+const double KP_YAW =0.22, KI_YAW = 0.0, KD_YAW = 0.03;
+
 double left_dist, right_dist, front_dist;
 double targetYaw;
 bool flag=true;
 int lspeed=0,rspeed=0;
-
-
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
@@ -44,7 +43,7 @@ void updateDisplay(const char* status) {
 
 void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, double KP_DIST_RIGHT,double KD_DIST_RIGHT) {
     //mpu.update();
-    targetYaw = readYaw();
+    targetYaw = initAngles[currentDir];
     leftEncoderCount = 0;
     rightEncoderCount = 0;
 
@@ -57,14 +56,18 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     Serial.println(targetCounts);
 
     // Wall following constants
-    const double DESIRED_WALL_DIST = 65.0; // mm
+
+    const double DESIRED_WALL_DIST = 60  ; // mm
     const double WALL_DETECT_THRESHOLD = 250.0; // mm
-    const double WALL_FOLLOW_KP = 0.4; // tune this
-    const double WALL_FOLLOW_KD = 0.1;
+    const double WALL_FOLLOW_KP = 0.6; // tune this 0.6
+    const double WALL_FOLLOW_KD = 0.4; //0.2
+
+
     double prevwallError = 0;
-    bool leftWall = (left_dist < WALL_DETECT_THRESHOLD && left_dist>0);
-    bool rightWall = (right_dist < WALL_DETECT_THRESHOLD && right_dist>0);
+    
     while (true) {
+        bool leftWall = (left_dist < WALL_DETECT_THRESHOLD && left_dist>0);
+        bool rightWall = (right_dist < WALL_DETECT_THRESHOLD && right_dist>0);
         //mpu.update();
         left_dist = getDistance(tofLeft);
         right_dist = getDistance(tofRight);
@@ -118,9 +121,10 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
         prevErrorRight = errorRight;
         delay(5);
     }
+    float yawError = wrapAngle(targetYaw - readYaw());
 
-    if (abs(targetYaw - readYaw())>0){
-        rotateInPlace(targetYaw - readYaw(), 18);
+    if (abs(targetYaw - readYaw())>2){
+        rotateToFixed(initAngles[currentDir],18);
     }
 
     //if(front_dist < 155 && front_dist>90){
@@ -129,7 +133,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
             //moveForward(front_dist-85);
         //}
 
-   for(front_dist = getDistance(tofCenter);front_dist < 160 && front_dist>60;front_dist = getDistance(tofCenter)){
+   for(front_dist = getDistance(tofCenter);front_dist < 200 && front_dist>80;front_dist = getDistance(tofCenter)){
       digitalWrite(M1_in1, HIGH);
     digitalWrite(M1_in2, LOW);
    analogWrite(M1_PWM, 120);
@@ -227,6 +231,30 @@ float readRelativeYaw() {
     return wrapAngle(readYaw() - yawOffset);
 }
 
+float initAngles[4];   // 0=N, 1=E, 2=W, 3=S
+float initial;
+int currentDir = 0;    // start facing "forward" (index 0)
+
+
+void setFixedAngles() {
+    initial = readYaw();
+
+    initAngles[0] = wrapAngle(initial);        // forward
+    initAngles[1] = wrapAngle(initial - 90);   // left
+    initAngles[2] = wrapAngle(initial + 180);  // back
+    initAngles[3] = wrapAngle(initial + 90);   // right
+
+    // Print the array
+    Serial.println("Init Angles:");
+    for (int i = 0; i < 4; i++) {
+        Serial.print("initAngles[");
+        Serial.print(i);
+        Serial.print("] = ");
+        Serial.println(initAngles[i]);
+    }
+}
+
+
 // --- Simple PID ---
 float computePID(float error, float kp, float kd) {
     static float prevError = 0.0;
@@ -276,21 +304,27 @@ void rotateInPlace(float relativeAngle, int maxSpeed) {
 }
 
 
-// --- Relative turns ---
+
+// Rotate to one of the predefined orientations
+void rotateToFixed(float targetYaw, int maxSpeed) {
+    float currentYaw = readYaw();
+    float error = wrapAngle(targetYaw - currentYaw);
+    rotateInPlace(error, maxSpeed);
+}
+
 void TurnLeft() {
-    rotateInPlace(90.0, 30);  // rotate 90° left from current heading
+    currentDir = (currentDir + 3) % 4;   // move left in index space
+    rotateToFixed(initAngles[currentDir], 30);
 }
 
 void TurnRight() {
-    rotateInPlace(-90.0, 30);   // rotate 90° right from current heading
+    currentDir = (currentDir + 1) % 4;   // move right
+    rotateToFixed(initAngles[currentDir], 30);
 }
 
 void Turn180() {
-    if(getDistance(tofLeft) > getDistance(tofRight)) {
-        rotateInPlace(-180.0, 30);
-    } else {
-        rotateInPlace(180.0, 30);
-    }
+    currentDir = (currentDir + 2) % 4;   // flip
+    rotateToFixed(initAngles[currentDir], 30);
 }
 
 

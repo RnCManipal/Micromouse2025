@@ -98,10 +98,12 @@ void setup() {
 
 
 void loop() {
-    floodfill();
+setFixedAngles();
+ floodfill();
  delay(10000);
  
  final_run(short_path);
+
   // TurnRight();
   // delay(1000);
   // TurnLeft();
