@@ -6,6 +6,7 @@
 #include <Adafruit_VL6180X.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Adafruit_BNO08x.h>
 
 // Motor Pins
 #define M2_PWM PA1  // Right Motor PWM

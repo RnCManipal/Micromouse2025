@@ -7,6 +7,77 @@ Adafruit_VL6180X tofLeft;
 Adafruit_VL6180X tofCenter;
 Adafruit_VL6180X tofRight;
 
+Adafruit_BNO08x bno08x(-1);
+sh2_SensorValue_t sensorValue;
+
+static euler_t ypr = {0.0f, 0.0f, 0.0f};
+
+// Helper functions for quaternions
+static void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* ypr, bool degrees = false) {
+    float sqr = sq(qr), sqi = sq(qi), sqj = sq(qj), sqk = sq(qk);
+    ypr->yaw   = atan2(2.0f*(qi*qj + qk*qr), (sqi - sqj - sqk + sqr));
+    ypr->pitch = asin(-2.0f*(qi*qk - qj*qr) / (sqi + sqi + sqj + sqk));
+    ypr->roll  = atan2(2.0f*(qj*qk + qi*qr), (-sqi - sqj + sqk + sqr));
+    if (degrees) {
+        ypr->yaw   *= RAD_TO_DEG;
+        ypr->pitch *= RAD_TO_DEG;
+        ypr->roll  *= RAD_TO_DEG;
+    }
+}
+
+static void quaternionToEulerRV(sh2_RotationVectorWAcc_t* rv, euler_t* ypr, bool degrees = false) {
+    quaternionToEuler(rv->real, rv->i, rv->j, rv->k, ypr, degrees);
+}
+
+static void quaternionToEulerGI(sh2_GyroIntegratedRV_t* rv, euler_t* ypr, bool degrees = false) {
+    quaternionToEuler(rv->real, rv->i, rv->j, rv->k, ypr, degrees);
+}
+
+// Set reports
+void setReports(sh2_SensorId_t reportType, long report_interval) {
+    if (!bno08x.enableReport(reportType, report_interval)) {
+        Serial.println("Could not enable BNO report");
+    }
+}
+
+// Read events and update Euler angles
+void processBNOEvents() {
+    if (bno08x.wasReset()) {
+        Serial.println("BNO sensor reset!");
+    }
+
+    if (bno08x.getSensorEvent(&sensorValue)) {
+        switch (sensorValue.sensorId) {
+            case SH2_ARVR_STABILIZED_RV:
+                quaternionToEulerRV(&sensorValue.un.arvrStabilizedRV, &ypr, true);
+                break;
+            case SH2_GYRO_INTEGRATED_RV:
+                quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &ypr, true);
+                break;
+        }
+    }
+}
+
+// Return the last Euler angles
+euler_t getEuler() {
+    return ypr;
+}
+
+float readYaw() {
+    // Process new BNO events
+    if (bno08x.getSensorEvent(&sensorValue)) {
+        switch (sensorValue.sensorId) {
+            case SH2_ARVR_STABILIZED_RV:
+                quaternionToEulerRV(&sensorValue.un.arvrStabilizedRV, &ypr, true);
+                break;
+            case SH2_GYRO_INTEGRATED_RV:
+                quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &ypr, true);
+                break;
+        }
+    }
+    return ypr.yaw;  // Return latest yaw
+}
+
 void leftEncoderISR() {
     leftEncoderCount += (digitalRead(M1_ENC_A) == digitalRead(M1_ENC_B)) ? -1 : 1;
 }

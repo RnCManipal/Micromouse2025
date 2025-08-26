@@ -2,12 +2,40 @@
 #include "Sensors.h"
 #include "movement.h"
 #include "floodfill.h"
+#include <Adafruit_BNO08x.h>
+
+
+
+
+#ifdef FAST_MODE
+  // Top frequency is reported to be 1000Hz (but freq is somewhat variable)
+  sh2_SensorId_t reportType = SH2_GYRO_INTEGRATED_RV;
+  long reportIntervalUs = 2000;
+#else
+  // Top frequency is about 250Hz but this report is more accurate
+  sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
+  long reportIntervalUs = 5000;
+#endif
+
+
 void setup() {
     delay(2000);  // Initial delay (if needed)
     Serial.begin(115200);
     Wire.begin();
    
-    
+    if (!bno08x.begin_I2C()) {
+    //if (!bno08x.begin_UART(&Serial1)) {  // Requires a device with > 300 byte UART buffer!
+    //if (!bno08x.begin_SPI(BNO08X_CS, BNO08X_INT)) {
+      Serial.println("Failed to find BNO08x chip");
+      while (1) { delay(10); }
+    }
+    Serial.println("BNO08x Found!");
+
+
+  setReports(reportType, reportIntervalUs);
+
+  Serial.println("Reading events");
+  delay(100);
     // === ToF Sensor Initialization ===
     pinMode(TOF_LEFT_XSHUT, OUTPUT);
     pinMode(TOF_CENTER_XSHUT, OUTPUT);
@@ -43,10 +71,10 @@ void setup() {
     tofRight.setAddress(0x32);
 
     // === MPU6050 Initialization ===
-    mpu.begin();
-    delay(500);
-    mpu.calcOffsets(true);  // Auto-calibrate
-    Wire.setClock(400000);  // Increase MPU6050 read speed
+    // mpu.begin();
+    // delay(500);
+    // mpu.calcOffsets(true);  // Auto-calibrate
+    // Wire.setClock(400000);  // Increase MPU6050 read speed
 
     // === Motor Control Initialization ===
     pinMode(M1_PWM, OUTPUT);
@@ -65,24 +93,19 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(M2_ENC_A), rightEncoderISR, CHANGE);
     updateDisplay("System Ready");
 
-    delay(1000); // Final stabilization delay
+    delay(2000); // Final stabilization delay
 }
 
 
 void loop() {
-    //delay(3000);  // Move forward for 1 second
-    //TurnRight();
-   // delay(3000);  // Move forward for another second
- // Turn right for 1 second
- //moveForward(25);
- //Turn180();
-
-
- floodfill();
+    floodfill();
  delay(10000);
  
  final_run(short_path);
- //moveForward(25);
+  // TurnRight();
+  // delay(1000);
+  // TurnLeft();
+  // delay(1000);
+  }
  
- 
-}
+
