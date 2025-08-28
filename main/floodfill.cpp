@@ -5,7 +5,7 @@
 #define MAX 1000
 #include <floodfill.h>
 #include "data_structures.h"
-const float steplength=25.3;
+const float steplength=25.5;
 short y_length = length;
 char path_taken[length * length];
 int path_index = 0;
@@ -14,9 +14,11 @@ Queue queue;
 
 
 
-const double KP_DIST_LEFT = 0.1,KD_DIST_LEFT = 0.03, KP_DIST_RIGHT = 0.1,KD_DIST_RIGHT = 0.03;
+const double KP_DIST_LEFT = 0.08,KD_DIST_LEFT = 0.03, KP_DIST_RIGHT = 0.08,KD_DIST_RIGHT = 0.03;
 
-const double KP_DIST_LEFT2 = 0.6,KD_DIST_LEFT2 = 0.02,KP_DIST_RIGHT2 = 0.6,KD_DIST_RIGHT2 = 0.02;
+const double KP_DIST_LEFT2 = 0.4,KD_DIST_LEFT2 = 0.04,KP_DIST_RIGHT2 = 0.6,KD_DIST_RIGHT2 = 0.04; //final run
+
+const double KP_WALL = 0.15, KD_WALL = 0.2,KP_YAW =0.1;//final run constants
 
 bool last_was_back = false;
 char short_path[4000];
@@ -630,9 +632,9 @@ void final_run(const char short_path[]) {
     // If the first move is not in the same direction as facing, turn first
     if (currentDir != facingDir) {
         int diff = (currentDir - facingDir + 4) % 4;
-        if (diff == 1) TurnRight();
+        if (diff == 2) TurnRight();
         else if (diff == 3) TurnLeft();
-        else if (diff == 2) Turn180();
+        else if (diff == 1) Turn180();
         facingDir = currentDir;
     }
 
@@ -641,10 +643,11 @@ void final_run(const char short_path[]) {
 
         if (nextDir == currentDir) {
             steps++; // keep going straight
-        } else {
+        } 
+        else {
             // Move forward accumulated distance
             if(steps!=1){
-                moveForward(steps*25*0.9 ,KP_DIST_LEFT2, KD_DIST_LEFT2 ,KP_DIST_RIGHT2 ,KD_DIST_RIGHT2);
+                moveForward(steps*25*0.9 ,KP_DIST_LEFT2, KD_DIST_LEFT2 ,KP_DIST_RIGHT2 ,KD_DIST_RIGHT2,KP_WALL,KD_WALL,KP_YAW);
             }
             else{
                 moveForward(steps*25 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
@@ -653,8 +656,8 @@ void final_run(const char short_path[]) {
 
             // Turn towards the new direction
             int diff = (nextDir - facingDir + 4) % 4;
-            if (diff == 1) TurnRight();
-            else if (diff == 3) TurnLeft();
+            if (diff == 1) TurnLeft();
+            else if (diff == 3) TurnRight();
             else if (diff == 2) Turn180();
 
             facingDir = nextDir;
@@ -665,7 +668,7 @@ void final_run(const char short_path[]) {
 
     // Final move after loop
             if(steps!=1){
-                moveForward(steps*steplength*0.9 ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
+                moveForward(steps*steplength*0.9 ,KP_DIST_LEFT2, KD_DIST_LEFT2 ,KP_DIST_RIGHT2 ,KD_DIST_RIGHT2,KP_WALL,KD_WALL,KP_YAW);
             }
             else{
                 moveForward(steps*steplength ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);

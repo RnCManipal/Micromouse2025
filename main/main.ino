@@ -84,6 +84,8 @@ void setup() {
     pinMode(M2_in1, OUTPUT);
     pinMode(M2_in2, OUTPUT);
 
+    pinMode(BUTTON1,INPUT_PULLUP);
+    pinMode(BUTTON2,INPUT_PULLUP);
     // Enable Motor Driver
     pinMode(PB12, OUTPUT);
     digitalWrite(PB12, HIGH);
@@ -94,19 +96,38 @@ void setup() {
     updateDisplay("System Ready");
 
     delay(2000); // Final stabilization delay
+
 }
 
+int a  = 0;
 
 void loop() {
-setFixedAngles();
+
+  
+
+  while(digitalRead(BUTTON1)==HIGH){
+    Serial.println(digitalRead(BUTTON1));
+    delay(100);
+  }
+
+  if(a == 0){
+    setFixedAngles();
+    a++;
+  }
+
  floodfill();
- delay(10000);
+ while(digitalRead(BUTTON1)==HIGH){
+    Serial.println(digitalRead(BUTTON1));
+    delay(100);
+  }
  
  final_run(short_path);
 
   // TurnRight();
   // delay(1000);
   // TurnLeft();
+  // delay(1000);
+  // Turn180();
   // delay(1000);
   }
  

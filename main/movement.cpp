@@ -4,7 +4,7 @@
 float prevTofError = 0;
 float prevDistError = 0;
 
-double kpT = 0.5 , kiT = 0.0, kdT = 0.5; //rotate in place PID constants
+double kpT = 1 , kiT = 0.0, kdT = 0.7; //rotate in place PID constants
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
@@ -41,7 +41,7 @@ void updateDisplay(const char* status) {
     display.display();
 }
 
-void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, double KP_DIST_RIGHT,double KD_DIST_RIGHT) {
+void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, double KP_DIST_RIGHT,double KD_DIST_RIGHT,double WALL_FOLLOW_KP, double WALL_FOLLOW_KD,double KP_YAW) {
     //mpu.update();
     targetYaw = initAngles[currentDir];
     leftEncoderCount = 0;
@@ -57,10 +57,9 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
 
     // Wall following constants
 
-    const double DESIRED_WALL_DIST = 60  ; // mm
+    const double DESIRED_WALL_DIST = 65  ; // mm
     const double WALL_DETECT_THRESHOLD = 250.0; // mm
-    const double WALL_FOLLOW_KP = 0.6; // tune this 0.6
-    const double WALL_FOLLOW_KD = 0.4; //0.2
+     //0.2
 
 
     double prevwallError = 0;
@@ -123,7 +122,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     }
     float yawError = wrapAngle(targetYaw - readYaw());
 
-    if (abs(targetYaw - readYaw())>2){
+    if (abs(targetYaw - readYaw())>7){
         rotateToFixed(initAngles[currentDir],18);
     }
 
@@ -240,9 +239,9 @@ void setFixedAngles() {
     initial = readYaw();
 
     initAngles[0] = wrapAngle(initial);        // forward
-    initAngles[1] = wrapAngle(initial - 90);   // left
+    initAngles[1] = wrapAngle(initial - 90);   // right
     initAngles[2] = wrapAngle(initial + 180);  // back
-    initAngles[3] = wrapAngle(initial + 90);   // right
+    initAngles[3] = wrapAngle(initial + 90);   // left
 
     // Print the array
     Serial.println("Init Angles:");
@@ -293,7 +292,7 @@ void rotateInPlace(float relativeAngle, int maxSpeed) {
         Serial.print("  YawRate: "); Serial.println(yawRate);
 
         // Stop condition: close enough AND slow enough
-        if (abs(error) < 0.5 && abs(yawRate) < 100.0) { // 5°/s threshold
+        if (abs(error) < 0.5 && abs(yawRate) < 75.0) { // 5°/s threshold
             break;
         }
 
@@ -313,18 +312,21 @@ void rotateToFixed(float targetYaw, int maxSpeed) {
 }
 
 void TurnLeft() {
+    Serial.println("turning left");
     currentDir = (currentDir + 3) % 4;   // move left in index space
-    rotateToFixed(initAngles[currentDir], 30);
+    rotateToFixed(initAngles[currentDir], 255);
 }
 
 void TurnRight() {
+    Serial.println("turning right");
     currentDir = (currentDir + 1) % 4;   // move right
-    rotateToFixed(initAngles[currentDir], 30);
+    rotateToFixed(initAngles[currentDir], 255);
 }
 
 void Turn180() {
+    Serial.println("turning back");    
     currentDir = (currentDir + 2) % 4;   // flip
-    rotateToFixed(initAngles[currentDir], 30);
+    rotateToFixed(initAngles[currentDir], 255);
 }
 
 
