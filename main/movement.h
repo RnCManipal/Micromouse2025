@@ -15,14 +15,21 @@ extern float distkp, distkd, prevDistError;
 extern double kpT, kiT, kdT, targetAngle;
 extern double tilt_error, prev_tilt_error, integral_tilt;
 extern double kpL, kdL, kpR, kdR;
+extern int currentDir;              // global variable
+extern float initAngles[4];         // N, E, S, W yaw targets
 
-void moveForward(int distanceCm, double KP_DIST_LEFT,double KD_DIST_LEFT, double KP_DIST_RIGHT,double KD_DIST_RIGHT);
+float wrapAngle(float angle);   
+void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, double KP_DIST_RIGHT,double KD_DIST_RIGHT,double WALL_FOLLOW_KP = 0.4, double WALL_FOLLOW_KD = 0.3,double KP_YAW =0.3);
 void Motor_SetSpeed(int spdL, int spdR);
+
 float computePID(int error, float kp, float kd);
 void rotateInPlace(float targetAngleDegrees, int maxSpeed);
+void rotateToFixed(float targetYaw, int maxSpeed);
 void TurnLeft();
 void TurnRight();
 void Turn180();
+void setFixedAngles();
+
 void brake();
 void setMotorSpeeds(int leftSpeed, int rightSpeed);
 void brakeMotors();
