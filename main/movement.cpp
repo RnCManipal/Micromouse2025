@@ -12,7 +12,6 @@ double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 // const double KP_DIST_LEFT = 0.10, KD_DIST_LEFT = 0.03;
 // const double KP_DIST_RIGHT = 0.10, KD_DIST_RIGHT = 0.03;
 
-const double KP_YAW =0.22, KI_YAW = 0.0, KD_YAW = 0.03;
 
 double left_dist, right_dist, front_dist;
 double targetYaw;
@@ -58,7 +57,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     // Wall following constants
 
     const double DESIRED_WALL_DIST = 65  ; // mm
-    const double WALL_DETECT_THRESHOLD = 250.0; // mm
+    const double WALL_DETECT_THRESHOLD = 300.0; // mm
      //0.2
 
 
@@ -122,7 +121,7 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     }
     float yawError = wrapAngle(targetYaw - readYaw());
 
-    if (abs(targetYaw - readYaw())>7){
+    if (abs(targetYaw - readYaw())>3){
         rotateToFixed(initAngles[currentDir],18);
     }
 
@@ -148,8 +147,8 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
 
 
 void Motor_SetSpeed(int spdL, int spdR) {
-    spdL = constrain(spdL * 2, -255, 255);
-    spdR = constrain(spdR * 2, -255, 255);
+    spdL = constrain(spdL*2.1 , -255, 255);
+    spdR = constrain(spdR*2.1, -255, 255);
 
     if (spdL == 0) {
         digitalWrite(M1_in1, LOW);

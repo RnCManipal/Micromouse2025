@@ -113,9 +113,11 @@ void loop() {
   if(a == 0){
     setFixedAngles();
     a++;
+    delay(3000);
   }
-
+  
  floodfill();
+
  while(digitalRead(BUTTON1)==HIGH){
     Serial.println(digitalRead(BUTTON1));
     delay(100);
@@ -123,12 +125,7 @@ void loop() {
  
  final_run(short_path);
 
-  // TurnRight();
-  // delay(1000);
-  // TurnLeft();
-  // delay(1000);
-  // Turn180();
-  // delay(1000);
+ 
   }
  
 
