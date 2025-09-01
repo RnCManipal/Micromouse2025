@@ -105,26 +105,22 @@ void loop() {
 
   
 
-  while(digitalRead(PUSH1)==HIGH){
-    Serial.println(digitalRead(PUSH1));
-    delay(100);
-  }
+  int press= waitForPress();
 
   if(a == 0){
     setFixedAngles();
     a++;
     delay(3000);
   }
-  
- floodfill();
+  switch (press) {
+      case 1:   
+        floodfill();
+        break;
 
- while(digitalRead(PUSH1)==HIGH){
-    Serial.println(digitalRead(PUSH1));
-    delay(100);
-  }
- 
- final_run(short_path);
-
+      case 2:   
+        leftWallFollowerLoop();
+        break;
+    }
  
   }
  

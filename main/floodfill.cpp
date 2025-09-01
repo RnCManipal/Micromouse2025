@@ -16,7 +16,7 @@ int detectDist=170;
 
 const double KP_DIST_LEFT = 0.20,KD_DIST_LEFT = 0.1, KP_DIST_RIGHT = 0.20,KD_DIST_RIGHT = 0.1;
 
-const double KP_DIST_LEFT2 = 0.4,KD_DIST_LEFT2 = 0.04,KP_DIST_RIGHT2 = 0.6,KD_DIST_RIGHT2 = 0.04; //final run
+const double KP_DIST_LEFT2 = 0.1,KD_DIST_LEFT2 = 0.04,KP_DIST_RIGHT2 = 0.1,KD_DIST_RIGHT2 = 0.04; //final run
 
 const double KP_WALL = 0.15, KD_WALL = 0.2,KP_YAW =0.1;//final run constants
 
@@ -400,6 +400,7 @@ int floodfill() {
     initWalls();
 
     initFloodfill(arena_map, length, 0, length -1);
+
     for (int r = 0; r < length; r++) {
         for (int c = 0; c < length; c++) {
             Serial.print(arena_map[r][c]);
@@ -550,14 +551,47 @@ int floodfill() {
     }
     delay(15000);
     reduceDirections(short_path);
-     for(int i=0;i<length;i++){
-    for(int j=0;j<length;j++){
-    Serial.print(arena_map[i][j]);
-    Serial.print(" ");
- } Serial.println();
- }
+    
     return 0;
 }
+
+void leftWallFollowerLoop() {
+  Serial.println("Left Wall follower started");
+    while (true) {
+        int left_wall  = getDistance(tofLeft);
+        int right_wall = getDistance(tofRight);
+        int front_wall = getDistance(tofCenter);
+
+        Serial.print("Left: ");
+        Serial.print(left_wall);
+        Serial.print(" Right: "); 
+        Serial.print(right_wall);
+        Serial.print(" Front: ");
+        Serial.println(front_wall);
+
+        // 1. If left is open
+        if (left_wall > detectDist or left_wall == -1) {
+            TurnLeft();
+            moveForward(steplength, KP_DIST_LEFT2, KD_DIST_LEFT2, KP_DIST_RIGHT2, KD_DIST_RIGHT2);
+        }
+        // 2. Else if front is open
+        else if (front_wall > detectDist or front_wall == -1) {
+            moveForward(steplength, KP_DIST_LEFT2, KD_DIST_LEFT2, KP_DIST_RIGHT2, KD_DIST_RIGHT2);
+        }
+        // 3. Else if right is open
+        else if (right_wall > detectDist or right_wall == -1) {
+            TurnRight();
+            moveForward(steplength, KP_DIST_LEFT2, KD_DIST_LEFT2, KP_DIST_RIGHT2, KD_DIST_RIGHT2);
+        }
+        // 4. Else → dead end
+        else {
+            Turn180();
+            moveForward(steplength, KP_DIST_LEFT2, KD_DIST_LEFT2, KP_DIST_RIGHT2, KD_DIST_RIGHT2);
+        }
+
+    }
+}
+
 
 //int directionIndex(char dir) {
    // switch (dir) {

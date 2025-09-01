@@ -31,5 +31,6 @@ int direction_wrt_compass(short int arena_map[length][length], short int bot_pos
 int direction_wrt_bot(short int arena_map[length][length], short int bot_pos[2], int facing, bool wall_data[][length][4]);
 int floodfill();
 void final_run(const char* reduced);
+void leftWallFollowerLoop();
 
 #endif /* FLOODFILL_H_ */
