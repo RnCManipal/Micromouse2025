@@ -6,7 +6,7 @@
 #include "data_structures.h" // Include the header with the Queue class
 
 // Global Variables (Declared as extern in the header, defined in the .c file)
-constexpr int length = 6;
+constexpr int length = 16;
 
 extern char path_taken[length *length];
 extern int path_index;
