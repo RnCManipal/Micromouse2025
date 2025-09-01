@@ -33,6 +33,6 @@ void rightEncoderISR();
 int getDistance(Adafruit_VL6180X &sensor);
 bool hasBothSideWalls(int leftDist, int rightDist);
 
-
+int waitForPress();
 
 #endif // SENSORS_H

@@ -12,7 +12,7 @@ int path_index = 0;
 char path[4000];
 Queue queue;
 
-
+int detectDist=170;
 
 const double KP_DIST_LEFT = 0.20,KD_DIST_LEFT = 0.1, KP_DIST_RIGHT = 0.20,KD_DIST_RIGHT = 0.1;
 
@@ -61,24 +61,20 @@ bool dup_arr[length][length][4] ={
     {{1,0,1,1},{1,0,0,1},{0,0,0,1},{0,1,0,1},{0,1,0,1},{0,1,1,1}}
     };
 
-bool wall_data[length][length][4] ={
-    {{1,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0}},
-    {{1,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,0,1},{0,0,1,1}}
-    };
+
+bool wall_data[length][length][4];
+
+void initWalls() {
+    for (int r = 0; r < length; r++) {
+        for (int c = 0; c < length; c++) {
+            wall_data[r][c][0] = (c == 0);         // West wall
+            wall_data[r][c][1] = (r == 0);  // NORTH wall
+            wall_data[r][c][2] = (c == length - 1);  // East wall
+            wall_data[r][c][3] = (r= length-1);         // South wall
+        }
+    }
+}
+
 
 // bool wall_data[length][length][4] ={
 //     {{1,1,0,0},{1,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,1,0}},
@@ -381,43 +377,7 @@ int direction_wrt_bot(short arena_map[length][length], short bot_pos[2], int fac
 
 #include "data_structures.h"  // Make sure to include your custom structures
 
-short arena_map[length][length] = {
-        {14,13,12,11,10, 9, 8, 7, 7, 8, 9,10,11,12,13,14},
-        {13,12,11,10, 9, 8, 7, 6, 6, 7, 8, 9,10,11,12,13},
-        {12,11,10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9,10,11,12},
-        {11,10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9,10,11},
-        {10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9,10},
-        { 9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9},
-        { 8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8},
-        { 7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7},
-        { 7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7},
-        { 8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8},
-        { 9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9},
-        {10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9,10},
-        {11,10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9,10,11},
-        {12,11,10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9,10,11,12},
-        {13,12,11,10, 9, 8, 7, 6, 6, 7, 8, 9,10,11,12,13},
-        {14,13,12,11,10, 9, 8, 7, 7, 8, 9,10,11,12,13,14}
 
-    };
-short arena_map[16][16] = {
-    {15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0},
-    {16,15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3, 2, 1},
-    {17,16,15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3, 2},
-    {18,17,16,15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3},
-    {19,18,17,16,15,14,13,12,11,10, 9, 8, 7, 6, 5, 4},
-    {20,19,18,17,16,15,14,13,12,11,10, 9, 8, 7, 6, 5},
-    {21,20,19,18,17,16,15,14,13,12,11,10, 9, 8, 7, 6},
-    {22,21,20,19,18,17,16,15,14,13,12,11,10, 9, 8, 7},
-    {23,22,21,20,19,18,17,16,15,14,13,12,11,10, 9, 8},
-    {24,23,22,21,20,19,18,17,16,15,14,13,12,11,10, 9},
-    {25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10},
-    {26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11},
-    {27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12},
-    {28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13},
-    {29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14},
-    {30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15}
-};
 // short arena_map[length][length] = {
 //         { 4, 3, 2, 2, 3, 4 },
 //         { 3, 2, 1, 1, 2, 3 },
@@ -426,10 +386,28 @@ short arena_map[16][16] = {
 //         { 3, 2, 1, 1, 2, 3 },
 //         { 4, 3, 2, 2, 3, 4 },
 //     };
-int floodfill() {
-  
+short arena_map[length][length];
 
-    short position[2] = {(length-1), 0};
+void initFloodfill(short arena_map[length][length], int length, int goal_row, int goal_col) {
+        for (int r = 0; r < length; r++) {
+            for (int c = 0; c < length; c++) {
+                arena_map[r][c] = abs(r - goal_row) + abs(c - goal_col);
+            }
+        }
+    }
+
+int floodfill() {
+    initWalls();
+
+    initFloodfill(arena_map, length, 0, length -1);
+    for (int r = 0; r < length; r++) {
+        for (int c = 0; c < length; c++) {
+            Serial.print(arena_map[r][c]);
+        }
+        Serial.print("\n");
+    }
+    delay(3000);
+    short position[2] = {(length-1), 15};
 
     int facing = 1;
     int left_wall;
@@ -448,68 +426,68 @@ int floodfill() {
         Serial.print(" Front: ");
         Serial.println(front_wall);
         if(facing==0){
-            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < detectDist && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
             } //else {
                 //wall_data[position[0]][position[1]][3] = 0;
             //}
-            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < detectDist && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // W wall
             } //else {
                 //wall_data[position[0]][position[1]][0] = 0;
             //}
-            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < detectDist && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // N wall
             } //else {
                 //wall_data[position[0]][position[1]][1] = 0;
             //}
         }
         if(facing==1){
-            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < detectDist && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // left wall
             } //else {
                 //wall_data[position[0]][position[1]][0] = 0;
             //}
-            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < detectDist && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // front wall
             } //else {
                 //wall_data[position[0]][position[1]][1] = 0;
             //}
-            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < detectDist && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // right wall
             } //else {
                 //wall_data[position[0]][position[1]][2] = 0;
             //}
         }
         if(facing==2){
-            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < detectDist && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][1] = 1; // N wall
             } //else {
                 //wall_data[position[0]][position[1]][1] = 0;
             //}
-            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < detectDist && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // E wall
             } //else {
                 //wall_data[position[0]][position[1]][2] = 0;
             //}
-            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < detectDist && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
             } //else {
                 //wall_data[position[0]][position[1]][3] = 0;
             //}
         }
         if(facing==3){
-            if (getDistance(tofLeft) < 130 && getDistance(tofLeft)>0) {
+            if (getDistance(tofLeft) < detectDist && getDistance(tofLeft)>0) {
                 wall_data[position[0]][position[1]][2] = 1; // E wall
             } //else {
                 //wall_data[position[0]][position[1]][2] = 0;
             //}
-            if (getDistance(tofCenter) < 130 && getDistance(tofCenter)>0) {
+            if (getDistance(tofCenter) < detectDist && getDistance(tofCenter)>0) {
                 wall_data[position[0]][position[1]][3] = 1; // S wall
             } //else {
                 //wall_data[position[0]][position[1]][3] = 0;
             //}
-            if (getDistance(tofRight) < 130 && getDistance(tofRight)>0) {
+            if (getDistance(tofRight) < detectDist && getDistance(tofRight)>0) {
                 wall_data[position[0]][position[1]][0] = 1; // West wall
             } //else {
                 //wall_data[position[0]][position[1]][0] = 0;
@@ -565,8 +543,8 @@ int floodfill() {
         // Push previous position to queue for path tracking
         queue.push(prev_x, prev_y);
         Serial.print("Current position:" );
-        Serial.println(position[0]);
-        Serial.print(position[1]);
+        Serial.print(position[0]);
+        Serial.println(position[1]);
         Serial.print("Current facing:" );
         Serial.println(facing);
     }

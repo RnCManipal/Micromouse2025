@@ -22,8 +22,10 @@
 #define M1_ENC_A PB9  // Left Encoder A
 #define M1_ENC_B PB8  // Left Encoder B
 
-#define BUTTON1 PA8
-#define BUTTON2 PB5
+// #define BUTTON1 PA8
+// #define BUTTON2 PB5
+#define PUSH2 PA8
+#define PUSH1 PB5
 #define SWITCH PB1
 // TOF Sensor Pins
 #define TOF_LEFT_XSHUT PB14  

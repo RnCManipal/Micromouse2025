@@ -84,8 +84,8 @@ void setup() {
     pinMode(M2_in1, OUTPUT);
     pinMode(M2_in2, OUTPUT);
 
-    pinMode(BUTTON1,INPUT_PULLUP);
-    pinMode(BUTTON2,INPUT_PULLUP);
+    pinMode(PUSH1,INPUT_PULLUP);
+    pinMode(PUSH2,INPUT_PULLUP);
     // Enable Motor Driver
     pinMode(PB12, OUTPUT);
     digitalWrite(PB12, HIGH);
@@ -105,8 +105,8 @@ void loop() {
 
   
 
-  while(digitalRead(BUTTON1)==HIGH){
-    Serial.println(digitalRead(BUTTON1));
+  while(digitalRead(PUSH1)==HIGH){
+    Serial.println(digitalRead(PUSH1));
     delay(100);
   }
 
@@ -118,8 +118,8 @@ void loop() {
   
  floodfill();
 
- while(digitalRead(BUTTON1)==HIGH){
-    Serial.println(digitalRead(BUTTON1));
+ while(digitalRead(PUSH1)==HIGH){
+    Serial.println(digitalRead(PUSH1));
     delay(100);
   }
  

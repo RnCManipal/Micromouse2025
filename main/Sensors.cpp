@@ -103,3 +103,23 @@ bool hasBothSideWalls(int leftDist, int rightDist) {
     // Consider walls present if they're between 5cm and 30cm away
     return (leftDist >= 4 && leftDist <= 8) && (rightDist >= 4 && rightDist <= 8);
 }
+
+int waitForPress() {
+  // Loop until either button is pressed
+  while (true) {
+    if (digitalRead(PUSH1) == LOW) {  // button1 pressed
+      delay(50); // debounce
+      while (digitalRead(PUSH1) == LOW); // wait release
+      delay(1500);
+      return 1;
+      break;
+    }
+    if (digitalRead(PUSH2) == LOW) {  // button2 pressed
+      delay(50); 
+      while (digitalRead(PUSH2) == LOW); // wait release
+      delay(1500);
+      return 2;
+      break;
+      }
+  }
+}

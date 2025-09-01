@@ -287,8 +287,8 @@ void rotateInPlace(float relativeAngle, int maxSpeed) {
         int direction = (error > 0) ? 1 : -1;
 
         Motor_SetSpeed(-direction * speed, direction * speed);
-        Serial.print("Error: "); Serial.print(error);
-        Serial.print("  YawRate: "); Serial.println(yawRate);
+        // Serial.print("Error: "); Serial.print(error);
+        // Serial.print("  YawRate: "); Serial.println(yawRate);
 
         // Stop condition: close enough AND slow enough
         if (abs(error) < 0.5 && abs(yawRate) < 75.0) { // 5°/s threshold
