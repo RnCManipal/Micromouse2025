@@ -98,7 +98,7 @@ This guide explains how to set up and program the **STM32 BlackPill F411CE** usi
 ## 🔧 Installation & Setup
 
 1. Open **Arduino IDE**.  
-2. Go to **File > Preferences** and paste the following URL into *Additional Board Manager URLs*:  
+2. Go to **File > Preferences** and paste the following URL into *Additional Board Manager URLs*:  https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
 3. Open **Boards Manager** (Tools > Board > Boards Manager) and search for **STM32**.  
 - Install the package: **STM32 Cores by STMicroelectronics**.  
 4. Install **STM32CubeProgrammer (STM32Prog)** from ST’s official site:  
