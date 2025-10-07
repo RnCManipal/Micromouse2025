@@ -5,8 +5,8 @@
 #include "Sensors.h"
 
 #define WHEEL_DIAMETER_CM 4.4
-#define MIN_MOTOR_SPEED 30      
-#define MAX_MOTOR_SPEED 180     
+#define MIN_MOTOR_SPEED 100   
+#define MAX_MOTOR_SPEED 220     
 #define STOP_THRESHOLD 363 //355
 #define SLOWDOWN_FACTOR 0.8
 
@@ -28,6 +28,8 @@ void rotateToFixed(float targetYaw, int maxSpeed);
 void TurnLeft();
 void TurnRight();
 void Turn180();
+void left180();
+void right180();
 void setFixedAngles();
 
 void brake();

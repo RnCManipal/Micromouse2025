@@ -7,6 +7,9 @@
 
 // Global Variables (Declared as extern in the header, defined in the .c file)
 constexpr int length = 32;
+const double KP_DIST_LEFT = 0.40,KD_DIST_LEFT = 0.1, KP_DIST_RIGHT = 0.40,KD_DIST_RIGHT = 0.1;
+
+const double KP_DIST_LEFT2 = 0.1,KD_DIST_LEFT2 = 0.04,KP_DIST_RIGHT2 = 0.1,KD_DIST_RIGHT2 = 0.04; //final ru
 
 extern char path_taken[length *length];
 extern int path_index;

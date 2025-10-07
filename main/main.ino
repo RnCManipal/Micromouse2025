@@ -2,7 +2,10 @@
 #include "Sensors.h"
 #include "movement.h"
 #include "floodfill.h"
+//#include "wall_follow.h"
+#include "follow_pid.h"
 #include <Adafruit_BNO08x.h>
+
 
 //includes
 
@@ -103,31 +106,38 @@ int a  = 0;
 
 void loop() {
 
-  
+  // int press= waitForPress();
 
-  int press= waitForPress();
+  //  if(a == 0){
+  //   setFixedAngles();
+  //   a++;
+  //   delay(2000);
+  // }
+  // switch (press) {
+  //     case 1:   
+  //        floodfill();
+  //        break;
+//movePID();
+      // case 2:   
+      // leftfollow_PID();
+        // leftWallFollowerLoop();
+        // digitalWrite(M1_in1, HIGH);
+        // digitalWrite(M1_in2, LOW);
+        // analogWrite(M1_PWM, 200);
 
-  if(a == 0){
-    setFixedAngles();
-    a++;
-    delay(3000);
-  }
-  switch (press) {
-      case 1:   
-        floodfill();
-        break;
-
-      case 2:   
-        leftWallFollowerLoop();
-        break;
-    }
-  // Serial.println(readYaw());
+        // digitalWrite(M2_in1, HIGH);
+        // digitalWrite(M2_in2, LOW);
+        // analogWrite(M2_PWM, 200);
+        // Serial.println(readYaw());
+    //     break;
+    // }
+   Serial.println(readYaw());
   // TurnRight();
-  // delay(500);
+   delay(500);
   // TurnLeft();
   // delay(500);
-  // Turn180();
-  // delay(500);
+ // right180();
+ // delay(500);
   }
  
 

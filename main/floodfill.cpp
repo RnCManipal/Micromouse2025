@@ -12,11 +12,9 @@ int path_index = 0;
 char path[4000];
 Queue queue;
 
-int detectDist=170;
+int detectDist=180;
 
-const double KP_DIST_LEFT = 0.20,KD_DIST_LEFT = 0.1, KP_DIST_RIGHT = 0.20,KD_DIST_RIGHT = 0.1;
 
-const double KP_DIST_LEFT2 = 0.1,KD_DIST_LEFT2 = 0.04,KP_DIST_RIGHT2 = 0.1,KD_DIST_RIGHT2 = 0.04; //final run
 
 const double KP_WALL = 0.15, KD_WALL = 0.2,KP_YAW =0.1;//final run constants
 
@@ -703,3 +701,5 @@ void final_run(const char short_path[]) {
                 moveForward(steps*steplength ,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);
 
             }}
+
+//moveForward(25,KP_DIST_LEFT, KD_DIST_LEFT ,KP_DIST_RIGHT ,KD_DIST_RIGHT);

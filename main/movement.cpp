@@ -4,7 +4,7 @@
 float prevTofError = 0;
 float prevDistError = 0;
 
-double kpT = 1.1 , kiT = 0.0, kdT = 1; //rotate in place PID constants
+double kpT = 1.75 , kiT = 0.0, kdT = 0.8; //rotate in place PID constants
 double targetAngle = 0.0;
 double tilt_error = 0, prev_tilt_error = 0, integral_tilt = 0;
 
@@ -121,8 +121,8 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
     }
     float yawError = wrapAngle(targetYaw - readYaw());
 
-    if (abs(targetYaw - readYaw())>3){
-        rotateToFixed(initAngles[currentDir],18);
+    if (abs(targetYaw - readYaw())>4){
+        rotateToFixed(initAngles[currentDir],70);
     }
 
     //if(front_dist < 155 && front_dist>90){
@@ -147,8 +147,8 @@ void moveForward(int distanceCm, double KP_DIST_LEFT ,double KD_DIST_LEFT, doubl
 
 
 void Motor_SetSpeed(int spdL, int spdR) {
-    spdL = constrain(spdL*1.9 , -255, 255);
-    spdR = constrain(spdR*1.9, -255, 255);
+    spdL = constrain(spdL*2.2 , -255, 255);
+    spdR = constrain(spdR*2.2, -255, 255);
 
     if (spdL == 0) {
         digitalWrite(M1_in1, LOW);
@@ -239,27 +239,9 @@ void setFixedAngles() {
 
     initAngles[0] = wrapAngle(initial);        // forward
     initAngles[1] = wrapAngle(initial - 90);   // right
-    initAngles[2] = wrapAngle(initial + 180);  // back
+    initAngles[2] = wrapAngle(initial + 180);  //left back
     initAngles[3] = wrapAngle(initial + 90);   // left
-
-    // Print the array
-    Serial.println("Init Angles:");
-    for (int i = 0; i < 4; i++) {
-        Serial.print("initAngles[");
-        Serial.print(i);
-        Serial.print("] = ");
-        Serial.println(initAngles[i]);
-    }
-}
-
-void setFixedAngles(float x) {
-    initial = readYaw() - x;
-
-    initAngles[0] = wrapAngle(initial);        // forward
-    initAngles[1] = wrapAngle(initial - 90);   // right
-    initAngles[2] = wrapAngle(initial + 180);  // back
-    initAngles[3] = wrapAngle(initial + 90);   // left
-
+    
     // Print the array
     Serial.println("Init Angles:");
     for (int i = 0; i < 4; i++) {
@@ -309,7 +291,7 @@ void rotateInPlace(float relativeAngle, int maxSpeed) {
         // Serial.print("  YawRate: "); Serial.println(yawRate);
 
         // Stop condition: close enough AND slow enough
-        if (abs(error) < 0.5 && abs(yawRate) < 75.0) { // 5°/s threshold
+        if (abs(error) < 0.7 && abs(yawRate) < 75.0) { // 5°/s threshold
             break;
         }
 
@@ -319,26 +301,13 @@ void rotateInPlace(float relativeAngle, int maxSpeed) {
     brakeMotors();
 }
 
-float errorOffset90(float error) {
-    float off = fmodf(fabsf(error), 90.0f);   // remainder in [0.0, 90.0)
-    if (off > 45.0f) {
-        off = 90.0f - off;   // mirror so it's always distance to nearest 90
-    }
-    return off;
-}
+
 
 // Rotate to one of the predefined orientations
 void rotateToFixed(float targetYaw, int maxSpeed) {
     float currentYaw = readYaw();
     float error = wrapAngle(targetYaw - currentYaw);
-
-    float off = errorOffset90(error);
-
-    // If we're drifting far from exact 90° multiples, re-fix
-    if (off > 35.0f) {
-        setFixedAngles(off);
-    }
-
+    
     rotateInPlace(error, maxSpeed);
 }
 
@@ -357,8 +326,16 @@ void TurnRight() {
 void Turn180() {
     Serial.println("turning back");    
     currentDir = (currentDir + 2) % 4;   // flip
+    int right_dis = getDistance(tofRight);
+    int left_dis = getDistance(tofLeft);
+    if(right_dis <= left_dis )
     rotateToFixed(initAngles[currentDir], 255);
+    else 
+    rotateToFixed(-initAngles[currentDir], 255);
 }
+
+
+
 
 
 void brakeMotors() {

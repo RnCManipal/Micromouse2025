@@ -33,7 +33,7 @@
 #define TOF_RIGHT_XSHUT PB15  
 
 // Constants
-#define MAXSPEED 180
+#define MAXSPEED 250
 #define MIN_OBSTACLE_DISTANCE 5  // Stop if obstacle is closer than 10 cm
 #define COUNTS_PER_ROTATION 930
 #define WHEEL_DIAMETER 4.4
