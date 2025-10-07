@@ -2,12 +2,43 @@
 #include "Sensors.h"
 #include "movement.h"
 #include "floodfill.h"
+//#include "wall_follow.h"
+#include "follow_pid.h"
+#include <Adafruit_BNO08x.h>
+
+
+//includes
+
+
+#ifdef FAST_MODE
+  // Top frequency is reported to be 1000Hz (but freq is somewhat variable)
+  sh2_SensorId_t reportType = SH2_GYRO_INTEGRATED_RV;
+  long reportIntervalUs = 2000;
+#else
+  // Top frequency is about 250Hz but this report is more accurate
+  sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
+  long reportIntervalUs = 5000;
+#endif
+
+
 void setup() {
     delay(2000);  // Initial delay (if needed)
     Serial.begin(115200);
     Wire.begin();
    
-    
+    if (!bno08x.begin_I2C()) {
+    //if (!bno08x.begin_UART(&Serial1)) {  // Requires a device with > 300 byte UART buffer!
+    //if (!bno08x.begin_SPI(BNO08X_CS, BNO08X_INT)) {
+      Serial.println("Failed to find BNO08x chip");
+      while (1) { delay(10); }
+    }
+    Serial.println("BNO08x Found!");
+
+
+  setReports(reportType, reportIntervalUs);
+
+  Serial.println("Reading events");
+  delay(100);
     // === ToF Sensor Initialization ===
     pinMode(TOF_LEFT_XSHUT, OUTPUT);
     pinMode(TOF_CENTER_XSHUT, OUTPUT);
@@ -17,6 +48,7 @@ void setup() {
     digitalWrite(TOF_RIGHT_XSHUT, LOW);
     delay(10);
 
+    pinMode(SWITCH, INPUT);
     // Initialize left ToF
     digitalWrite(TOF_LEFT_XSHUT, HIGH);
     delay(50);
@@ -42,10 +74,10 @@ void setup() {
     tofRight.setAddress(0x32);
 
     // === MPU6050 Initialization ===
-    mpu.begin();
-    delay(500);
-    mpu.calcOffsets(true);  // Auto-calibrate
-    Wire.setClock(400000);  // Increase MPU6050 read speed
+    // mpu.begin();
+    // delay(500);
+    // mpu.calcOffsets(true);  // Auto-calibrate
+    // Wire.setClock(400000);  // Increase MPU6050 read speed
 
     // === Motor Control Initialization ===
     pinMode(M1_PWM, OUTPUT);
@@ -55,6 +87,8 @@ void setup() {
     pinMode(M2_in1, OUTPUT);
     pinMode(M2_in2, OUTPUT);
 
+    pinMode(PUSH1,INPUT_PULLUP);
+    pinMode(PUSH2,INPUT_PULLUP);
     // Enable Motor Driver
     pinMode(PB12, OUTPUT);
     digitalWrite(PB12, HIGH);
@@ -64,29 +98,46 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(M2_ENC_A), rightEncoderISR, CHANGE);
     updateDisplay("System Ready");
 
-    delay(1000); // Final stabilization delay
+    delay(2000); // Final stabilization delay
+
 }
 
+int a  = 0;
 
 void loop() {
-    //delay(3000);  // Move forward for 1 second
-    //TurnRight();
-   // delay(3000);  // Move forward for another second
- // Turn right for 1 second
- //moveForward(25);
- //Turn180();
- floodfill();
- delay(10000);
- 
- print_path_taken();
- reduceDirections(path_taken);
- for(int i=0;i<256;i++){
-    Serial.print(short_path[i]);
-    Serial.print("\t");
- }
 
- final_run(short_path);
- //moveForward(25);
+  // int press= waitForPress();
+
+  //  if(a == 0){
+  //   setFixedAngles();
+  //   a++;
+  //   delay(2000);
+  // }
+  // switch (press) {
+  //     case 1:   
+  //        floodfill();
+  //        break;
+//movePID();
+      // case 2:   
+      // leftfollow_PID();
+        // leftWallFollowerLoop();
+        // digitalWrite(M1_in1, HIGH);
+        // digitalWrite(M1_in2, LOW);
+        // analogWrite(M1_PWM, 200);
+
+        // digitalWrite(M2_in1, HIGH);
+        // digitalWrite(M2_in2, LOW);
+        // analogWrite(M2_PWM, 200);
+        // Serial.println(readYaw());
+    //     break;
+    // }
+   Serial.println(readYaw());
+  // TurnRight();
+   delay(500);
+  // TurnLeft();
+  // delay(500);
+ // right180();
+ // delay(500);
+  }
  
- 
-}
+

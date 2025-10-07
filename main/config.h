@@ -6,6 +6,7 @@
 #include <Adafruit_VL6180X.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Adafruit_BNO08x.h>
 
 // Motor Pins
 #define M2_PWM PA1  // Right Motor PWM
@@ -21,13 +22,18 @@
 #define M1_ENC_A PB9  // Left Encoder A
 #define M1_ENC_B PB8  // Left Encoder B
 
+// #define BUTTON1 PA8
+// #define BUTTON2 PB5
+#define PUSH2 PA8
+#define PUSH1 PB5
+#define SWITCH PB1
 // TOF Sensor Pins
 #define TOF_LEFT_XSHUT PB14  
 #define TOF_CENTER_XSHUT PB13   
 #define TOF_RIGHT_XSHUT PB15  
 
 // Constants
-#define MAXSPEED 180
+#define MAXSPEED 250
 #define MIN_OBSTACLE_DISTANCE 5  // Stop if obstacle is closer than 10 cm
 #define COUNTS_PER_ROTATION 930
 #define WHEEL_DIAMETER 4.4
